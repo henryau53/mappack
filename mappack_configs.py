@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 import os
+import logging
 
 # -----< 通用配置 >-----
 # 项目根目录
 BASE_DIR = os.path.abspath('.')
-# 地图瓦片合成目录
+
+# 项目console日志等级
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(funcName)s]: %(message)s")
 
 # 通用 User-Agent
 USER_AGENTS = [

@@ -1,44 +1,71 @@
 @font-face {
-    font-family: zpix;
-    src: url("../static/zpix.ttf");
+  font-family: zpix;
+  src: url("../static/zpix.ttf");
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    font-family: "zpix";
-    font-size: 16px;
+  margin: 0;
+  padding: 0;
+  font-family: "zpix";
+  font-size: 16px;
 }
 
 html,
 body {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .tianditu {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .panel {
-    width: 350px;
-    position: fixed;
-    top: 8px;
-    right: 8px;
-    padding: 8px;
-    background-color: rgba(255, 255, 255, 0);
-    z-index: 400;
-    box-sizing: border-box;
+  width: 360px;
+  position: fixed;
+  top: 4px;
+  right: 8px;
+  background-color: rgba(255, 255, 255, 0);
+  z-index: 400;
+  box-sizing: border-box;
 
-    .group {
-        margin-bottom: 15px;
-        .text {
-            height: 32px;
-            line-height: 32px;
-        }
-        .block-field {
-            margin-top: 16px;
-        }
+  .group {
+    margin-bottom: 10px !important;
+    .text {
+      height: 32px;
+      line-height: 32px;
     }
+  }
+}
+
+.gap {
+  margin-top: 8px;
+}
+
+.nes-container {
+  padding: 1.5rem 1rem;
+}
+
+.dialog {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  overflow: hidden;
+  display: none;
+  justify-content: center;
+  align-items: center;
+
+  .checkgroup {
+    label {
+      margin-right: 8px;
+      &:last-child {
+        margin-right: 0px;
+      }
+    }
+  }
 }

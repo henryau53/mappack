@@ -9,11 +9,9 @@ from PIL import Image
 from core.tianditu import tile_processor
 from mappack_configs import TIANDITU_IMG_C_URL, TIANDITU_TILE_PATH, TIANDITU_BUNDLE_PATH, TIANDITU_GEOTIFF_PATH
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(funcName)s]: %(message)s")
-
 
 def download_tiles(level: int, start_row: int, end_row: int, start_col: int, end_col: int) -> None:
-    """下载指定层级的瓦片图。
+    """下载指定层级的所有瓦片图。
 
     Args:
         level (int): 指定下载层级
@@ -26,14 +24,14 @@ def download_tiles(level: int, start_row: int, end_row: int, start_col: int, end
     # 创建瓦片存放的层级目录
     if not os.path.isdir(output_path):
         os.makedirs(output_path, exist_ok=True)
-        logging.info(f"创建\033[1;32m{output_path}\033[0m目录")
+        logging.info(f"创建\033[1;36m{output_path}\033[0m目录")
 
     for row in range(start_row, end_row + 1):
         # 创建瓦片存放的行级目录
         row_path = os.path.join(output_path, str(row))
         if not os.path.isdir(row_path):
             os.mkdir(row_path)
-            logging.info(f"创建\033[1;32m{row_path}\033[0m目录")
+            logging.info(f"创建\033[1;36m{row_path}\033[0m目录")
 
         for col in range(start_col, end_col + 1):
             # TODO: 已经在fetch_tile中加入成功失败返回参数，回头可以添加失败重试
@@ -71,11 +69,11 @@ def bundle_tiles(level: int) -> None:
     output_path = os.path.join(TIANDITU_BUNDLE_PATH, str(level))
     if not os.path.isdir(output_path):
         os.makedirs(output_path, exist_ok=True)
-        logging.info(f"创建\033[1;32m{output_path}\033[0m目录")
+        logging.info(f"创建\033[1;36m{output_path}\033[0m目录")
 
     output = os.path.join(output_path, "bundle.jpg")
     bundle.save(output, quality=100)
-    logging.info(f"生成\033[1;32m{output}\033[0m")
+    logging.info(f"生成\033[1;36m{output}\033[0m")
 
 
 def translate_bundle(level: int, nw: List[float], se: List[float], epsg: str = "EPSG:4326") -> None:
@@ -91,7 +89,7 @@ def translate_bundle(level: int, nw: List[float], se: List[float], epsg: str = "
     output_path = os.path.join(TIANDITU_GEOTIFF_PATH, str(level))
     if not os.path.isdir(output_path):
         os.makedirs(output_path, exist_ok=True)
-        logging.info(f"创建\033[1;32m{output_path}\033[0m目录")
+        logging.info(f"创建\033[1;36m{output_path}\033[0m目录")
     output = os.path.join(output_path, "bundle.tif")
     tile_processor.translate_geotiff(nw, se, input, output, epsg)
-    logging.info(f"生成\033[1;32m{output}\033[0m")
+    logging.info(f"生成\033[1;36m{output}\033[0m")

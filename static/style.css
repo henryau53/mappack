@@ -22,11 +22,10 @@ body {
 }
 
 .panel {
-  width: 350px;
+  width: 360px;
   position: fixed;
-  top: 8px;
+  top: 4px;
   right: 8px;
-  padding: 8px;
   background-color: rgba(255, 255, 255, 0);
   z-index: 400;
   -webkit-box-sizing: border-box;
@@ -34,7 +33,7 @@ body {
 }
 
 .panel .group {
-  margin-bottom: 15px;
+  margin-bottom: 10px !important;
 }
 
 .panel .group .text {
@@ -42,7 +41,37 @@ body {
   line-height: 32px;
 }
 
-.panel .group .block-field {
-  margin-top: 16px;
+.gap {
+  margin-top: 8px;
+}
+
+.nes-container {
+  padding: 1.5rem 1rem;
+}
+
+.dialog {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  overflow: hidden;
+  display: none;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.dialog .checkgroup label {
+  margin-right: 8px;
+}
+
+.dialog .checkgroup label:last-child {
+  margin-right: 0px;
 }
 /*# sourceMappingURL=style.css.map */

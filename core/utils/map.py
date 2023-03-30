@@ -13,7 +13,7 @@ C = 2 * math.pi * R
 
 
 def EPSG4326_to_EPSG3857(lng: float, lat: float) -> Tuple[float, float]:
-    """经纬度坐标转伪墨卡托坐标
+    """经纬度坐标转伪墨卡托坐标。
 
     Args:
         lng (float): 经度
@@ -30,7 +30,7 @@ def EPSG4326_to_EPSG3857(lng: float, lat: float) -> Tuple[float, float]:
 
 
 def EPSG3857_to_EPSG4326(lng, lat):
-    """伪墨卡托坐标转经纬度坐标
+    """伪墨卡托坐标转经纬度坐标。
 
     Args:
         lng (float): 经度
@@ -46,7 +46,7 @@ def EPSG3857_to_EPSG4326(lng, lat):
 
 
 def get_meters_per_pixel(zoom: int, tile_size=256) -> float:
-    """获取指定层级瓦片地图上一像素代表的米数
+    """获取指定层级瓦片地图上一像素代表的米数。
 
     Args:
         zoom (int): 层级
@@ -67,7 +67,7 @@ def get_meters_per_pixel(zoom: int, tile_size=256) -> float:
 
 
 def tianditu_EPSG3857_to_tile_position(lng: float, lat: float, zoom: int) -> Tuple[int, int, int]:
-    """通过伪墨卡托 Pseudo-Mercator（EPSG3857）坐标（该经纬度为墨卡托坐标）获取天地图的瓦片图的行号列号
+    """通过伪墨卡托 Pseudo-Mercator（EPSG3857）坐标（该经纬度为墨卡托坐标）获取天地图的瓦片图的行号列号。
 
     Args:
         lng (float): 经度
@@ -98,7 +98,7 @@ def tianditu_EPSG3857_to_tile_position(lng: float, lat: float, zoom: int) -> Tup
 
 
 def tianditu_tile_position_to_EPSG3857(row: int, col: int, zoom: int) -> Tuple[float, float]:
-    """通过天地图的瓦片图的行号列号获取伪墨卡托 Pseudo-Mercator（EPSG3857）坐标（该经纬度为墨卡托坐标）
+    """通过天地图的瓦片图的行号列号获取伪墨卡托 Pseudo-Mercator（EPSG3857）坐标（该经纬度为墨卡托坐标）。
 
     Args:
         row (int): 行号
@@ -125,7 +125,7 @@ def tianditu_tile_position_to_EPSG3857(row: int, col: int, zoom: int) -> Tuple[f
 
 
 def tianditu_EPSG4326_to_tile_position(lng: float, lat: float, zoom: int) -> Tuple[int, int, int]:
-    """通过经纬度坐标系（EPSG4326）经纬度坐标获取天地图的瓦片图的行号列号
+    """通过经纬度坐标系（EPSG4326）经纬度坐标获取天地图的瓦片图的行号列号。
 
     Args:
         lng (float): 经度
@@ -147,7 +147,7 @@ def tianditu_EPSG4326_to_tile_position(lng: float, lat: float, zoom: int) -> Tup
 
 
 def tianditu_tile_position_to_EPSG4326(row: int, col: int, zoom: int) -> Tuple[float, float]:
-    """通过天地图的瓦片图的行号列号获取经纬度坐标系（EPSG4326）经纬度坐标
+    """通过天地图的瓦片图的行号列号获取经纬度坐标系（EPSG4326）经纬度坐标。
 
     Args:
         row (int): 行号
@@ -168,7 +168,7 @@ def tianditu_tile_position_to_EPSG4326(row: int, col: int, zoom: int) -> Tuple[f
 
 
 def osm_EPSG4326_to_tile_position(lng: float, lat: float, zoom: int) -> Tuple[int, int, int]:
-    """通过经纬度坐标系（EPSG4326）经纬度坐标获取 OSM（OpenStreeMap）瓦片图的行号列号。OSM、GoogleMap 采用 WGS84（EPSG:4326）地理坐标系
+    """通过经纬度坐标系（EPSG4326）经纬度坐标获取 OSM（OpenStreeMap）瓦片图的行号列号。OSM、GoogleMap 采用 WGS84（EPSG:4326）地理坐标系。
 
     Args:
         lng (float): 经度
@@ -187,7 +187,7 @@ def osm_EPSG4326_to_tile_position(lng: float, lat: float, zoom: int) -> Tuple[in
 
 
 def osm_tile_position_to_EPSG4326(row: int, col: int, zoom: int) -> Tuple[float, float]:
-    """通过 OSM（OpenStreeMap）瓦片图的行号列号反推左上角经纬度（EPSG4326）。OSM、GoogleMap 采用 WGS84（EPSG:4326）地理坐标系
+    """通过 OSM（OpenStreeMap）瓦片图的行号列号反推左上角经纬度（EPSG4326）。OSM、GoogleMap 采用 WGS84（EPSG:4326）地理坐标系。
 
     Args:
         row (int): 行号

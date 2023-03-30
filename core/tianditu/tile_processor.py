@@ -7,7 +7,6 @@ import logging
 from osgeo import gdal, osr
 from mappack_configs import USER_AGENTS
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(funcName)s]: %(message)s")
 manager = urllib3.PoolManager(timeout=5.0, retries=3)
 
 
@@ -24,10 +23,11 @@ def fetch_tile(url: str, row: int, col: int, level: int, save_as: str) -> bool:
     Returns:
         bool: 成功返回True，失败返回False
     """
-    print(url % (level, row, col))
-    response = manager.request("GET", url % (level, row, col), headers={"User-Agent": random.choice(USER_AGENTS)})
+    tile_url = url % (level, row, col)
+    response = manager.request("GET", tile_url, headers={"User-Agent": random.choice(USER_AGENTS)})
+    logging.debug(f"瓦片地址：{tile_url}")
     if response.data:
-        logging.info(f"\033[1;32m获取{row}行，{col}列瓦片图成功\033[0m")
+        logging.info(f"\033[1;36m获取{row}行，{col}列瓦片图成功\033[0m")
         with open(save_as, "wb") as file:
             file.write(response.data)
         return True

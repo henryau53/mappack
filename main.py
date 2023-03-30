@@ -20,11 +20,12 @@ def hello():
 @app.route('/getBoundsOrigins', methods=['post'])
 def get_bounds_origins():
     bounds = request.get_json()
+    level = int(bounds["zoom"])
     # 计算瓦片坐标
-    tile_nw = map.tianditu_EPSG4326_to_tile_position(*bounds["nw"], bounds["zoom"])
-    tile_ne = map.tianditu_EPSG4326_to_tile_position(*bounds["ne"], bounds["zoom"])
-    tile_se = map.tianditu_EPSG4326_to_tile_position(*bounds["se"], bounds["zoom"])
-    tile_sw = map.tianditu_EPSG4326_to_tile_position(*bounds["sw"], bounds["zoom"])
+    tile_nw = map.tianditu_EPSG4326_to_tile_position(*bounds["nw"], level)
+    tile_ne = map.tianditu_EPSG4326_to_tile_position(*bounds["ne"], level)
+    tile_se = map.tianditu_EPSG4326_to_tile_position(*bounds["se"], level)
+    tile_sw = map.tianditu_EPSG4326_to_tile_position(*bounds["sw"], level)
 
     # 计算坐标区域的瓦片四个原点坐标
     coordinate_nw = map.tianditu_tile_position_to_EPSG4326(*tile_nw)
@@ -32,9 +33,9 @@ def get_bounds_origins():
     coordinate_se = map.tianditu_tile_position_to_EPSG4326(tile_se[0] + 1, tile_se[1] + 1, tile_se[2])
     coordinate_sw = map.tianditu_tile_position_to_EPSG4326(tile_sw[0] + 1, tile_sw[1], tile_sw[2])
 
-    packer.download_tiles(bounds["zoom"], tile_nw[0], tile_sw[0], tile_nw[1], tile_ne[1])
-    packer.bundle_tiles(bounds["zoom"])
-    packer.translate_bundle(bounds["zoom"], coordinate_nw, coordinate_se)
+    packer.download_tiles(level, tile_nw[0], tile_sw[0], tile_nw[1], tile_ne[1])
+    packer.bundle_tiles(level)
+    packer.translate_bundle(level, coordinate_nw, coordinate_se)
 
     data = {
         "coordinate": {
@@ -49,7 +50,7 @@ def get_bounds_origins():
             "se": tile_se,
             "sw": tile_sw,
         },
-        "zoom": bounds["zoom"],
+        "zoom": level,
     }
 
     return json.dumps(data), 200
