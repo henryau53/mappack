@@ -10,6 +10,27 @@ from core.tianditu import tile_processor
 from mappack_configs import TIANDITU_IMG_C_URL, TIANDITU_TILE_PATH, TIANDITU_BUNDLE_PATH, TIANDITU_GEOTIFF_PATH
 
 
+def download_tile(level: int, row: int, col: int) -> bool:
+    """单独下载指定层级行列号的瓦片图，返回是否成功
+
+    Args:
+        level (int): 当前瓦片图的层级
+        row (int): 当前瓦片图的行号
+        col (int): 当前瓦片图的列号
+
+    Returns:
+        bool: 成功返回True，失败返回False
+    """
+    output_path = os.path.join(TIANDITU_TILE_PATH, str(level), str(row))
+    # 创建瓦片存放的层级目录
+    if not os.path.isdir(output_path):
+        os.makedirs(output_path, exist_ok=True)
+        logging.info(f"创建\033[1;36m{output_path}\033[0m目录")
+
+    save_as = os.path.join(output_path, f"{col}.jpg")
+    return tile_processor.fetch_tile(TIANDITU_IMG_C_URL, row, col, level, save_as)
+
+
 def download_tiles(level: int, start_row: int, end_row: int, start_col: int, end_col: int) -> None:
     """下载指定层级的所有瓦片图。
 

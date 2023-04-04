@@ -2,7 +2,6 @@
   font-family: zpix;
   src: url("../static/zpix.ttf");
 }
-
 * {
   margin: 0;
   padding: 0;
@@ -28,14 +27,11 @@ body {
   right: 8px;
   background-color: rgba(255, 255, 255, 0);
   z-index: 400;
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
 }
-
 .panel .group {
   margin-bottom: 10px !important;
 }
-
 .panel .group .text {
   height: 32px;
   line-height: 32px;
@@ -59,19 +55,38 @@ body {
   z-index: 2;
   overflow: hidden;
   display: none;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  justify-content: center;
+  align-items: center;
 }
-
 .dialog .checkgroup label {
   margin-right: 8px;
 }
-
 .dialog .checkgroup label:last-child {
   margin-right: 0px;
 }
+
+.progress-bar {
+  border: 2px solid #ffffff;
+  width: 100%;
+  margin-bottom: 8px;
+}
+.progress-bar .value {
+  font-weight: bold;
+  font-size: 14px;
+  color: #fff;
+  margin-left: 4px;
+  float: left;
+  line-height: 24px;
+  height: 24px;
+}
+.progress-bar .bar {
+  background-color: #209cee;
+  height: 24px;
+  line-height: 24px;
+  transition: width 0.5s;
+  width: 0%;
+  text-align: right;
+  box-sizing: border-box;
+}
+
 /*# sourceMappingURL=style.css.map */

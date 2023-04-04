@@ -12,7 +12,8 @@
     <!-- <script src="http://api.tianditu.gov.cn/api?v=4.0&tk=71945204e48fec91a7e185f3c2ea1ea0">
     </script> -->
     <script src="{{ url_for('static', filename='tianditu4.0.js') }}"></script>
-    <script src="../static/tianditu4.0.js"></script>
+    <script src="{{ url_for('static', filename='utils.js') }}"></script>
+    <!-- <script src="../static/tianditu4.0.js"></script> -->
     <title>天地图</title>
 </head>
 
@@ -32,28 +33,29 @@
             <div class="title">基本选项</div>
             <div>
 
-                <label><input type="radio" class="nes-radio is-dark" id="imageMap" name="mapType" value="imageURL"
+                <label><input type="radio" class="nes-radio is-dark" id="imageCMap" name="mapType" value="imageCURL"
                         checked><span>影像地图</span></label>
                 <label><input type="radio" class="nes-radio is-dark" id="vectorCMap" name="mapType"
                         value="vectorCURL"><span>矢量地图</span></label>
             </div>
             <div class="gap">
-                <label><input type="checkbox" class="nes-checkbox is-dark" id="showGrid"><span>是否显示网格</span></label>
-                <label><input type="checkbox" class="nes-checkbox is-dark" id="realGrid"><span>显示实际下载区域</span></label>
+                <label><input type="checkbox" class="nes-checkbox is-dark" id="showGridline"><span>是否显示网格</span></label>
+                <label><input type="checkbox" class="nes-checkbox is-dark"
+                        id="showDownloadline"><span>显示实际下载区域</span></label>
             </div>
         </div>
         <div class="nes-container is-dark with-title group">
             <div class="title">区域选择</div>
             <div>
-                <div class="nes-field is-inline text"><span>左上坐标：</span><span id="selectNW">00.00,00.00</span></div>
-                <div class="nes-field is-inline text"><span>右上坐标：</span><span id="selectNE">00.00,00.00</span></div>
-                <div class="nes-field is-inline text"><span>右下坐标：</span><span id="selectSE">00.00,00.00</span></div>
-                <div class="nes-field is-inline text"><span>左下坐标：</span><span id="selectSW">00.00,00.00</span></div>
+                <div class="nes-field is-inline text"><span>左上坐标：</span><span id="selectedNW">00.00,00.00</span></div>
+                <div class="nes-field is-inline text"><span>右上坐标：</span><span id="selectedNE">00.00,00.00</span></div>
+                <div class="nes-field is-inline text"><span>右下坐标：</span><span id="selectedSE">00.00,00.00</span></div>
+                <div class="nes-field is-inline text"><span>左下坐标：</span><span id="selectedSW">00.00,00.00</span></div>
             </div>
             <div class="gap" style="margin-left: -4px;">
                 <button class="nes-btn is-success" id="openSelect">选择区域</button>
                 <button class="nes-btn is-primary" id="clearSelect">清除选择</button>
-                <button class="nes-btn" id="openDownload" onclick="onOpenDownloadDialog()">下载</button>
+                <button class="nes-btn" id="openDownload">下载</button>
             </div>
         </div>
         <div class="dialog" id="downloadDialog">
@@ -61,325 +63,73 @@
                 <div class="title">瓦片下载</div>
                 <div>
                     <div class="checkgroup">
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="1"><span>01级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="2"><span>02级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="3"><span>03级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="4"><span>04级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="5"><span>05级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="6"><span>06级</span></label>
                     </div>
                     <div class="checkgroup">
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="7"><span>07级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="8"><span>08级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="9"><span>09级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="10"><span>10级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="11"><span>11级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="12"><span>12级</span></label>
                     </div>
                     <div class="checkgroup">
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="13"><span>13级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="14"><span>14级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="15"><span>15级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="16"><span>16级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="17"><span>17级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="levelChecks"
+                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
                                 value="18"><span>18级</span></label>
                     </div>
                 </div>
-                <div class="gap">
-                    <progress class="nes-progress is-warning" id="dialogProgress" value="0" max="100"></progress>
+                <div id="progressContainer" class="gap">
+                    <!-- <div class="progress-bar">
+                        <div id="progressValue" class="value">18级别 (10%)</div>
+                        <div id="progressBar" class="bar"></div>
+                    </div> -->
                 </div>
                 <div class="gap" style="text-align: right;">
-                    <button class="nes-btn" id="selectALl" onclick="onSelectALl()">全部选中</button>
-                    <button class="nes-btn" id="unselectALl" onclick="onUnselectALl()">全部取消</button>
-                    <button class="nes-btn is-primary" id="dialogDownload" onclick="onDownload()">确定下载</button>
-                    <button class="nes-btn is-success" id="dialogCancel"
-                        onclick="document.getElementById('downloadDialog').style.display='none'">取消</button>
+                    <button class="nes-btn" id="selectAllZooms">全部选中</button>
+                    <button class="nes-btn" id="unselectAllZooms">全部取消</button>
+                    <button class="nes-btn is-primary" id="download">确定下载</button>
+                    <button class="nes-btn is-success" id="cancelDownload">取消</button>
                 </div>
             </div>
         </div>
         <div class="dialog" id="alertDialog">
             <div class="nes-container is-dark with-title content">
                 <div class="title">提示</div>
-                <div id="dialogMessage"></div>
+                <div id="alertMessage"></div>
                 <div class="gap" style="text-align: right;">
-                    <button class="nes-btn is-success" id="dialogCancel"
-                        onclick="document.getElementById('alertDialog').style.display='none'">确定</button>
+                    <button class="nes-btn is-success" id="cancelAlert">确定</button>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        var options = {
-            // token
-            token: "71945204e48fec91a7e185f3c2ea1ea0",
-            // 初始化层级
-            zoom: 15,
-            // 最小层级
-            minZoom: 1,
-            // 最大层级
-            maxZoom: 18,
-            // 默认中心点
-            center: [106.58828259, 29.56782092],
-            // 是否显示网格
-            showGrid: false,
-            // 伪墨卡托影像图地址
-            imageWURL: "http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-            // 伪墨卡托矢量图地址
-            vectorWURL: "http://t0.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-            // 经纬度影像图地址
-            imageCURL: "http://t0.tianditu.gov.cn/img_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-            // 经纬度矢量图地址
-            vectorCURL: "http://t0.tianditu.gov.cn/vec_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0"
-        }
-
-        var map;
-
-        var infoCenter = document.querySelector("#infoCenter");
-        var infoNECoordinate = document.querySelector("#infoNECoordinate");
-        var infoSWCoordinate = document.querySelector("#infoSWCoordinate");
-        var infoZoom = document.querySelector("#infoZoom");
-        var infoCurrent = document.querySelector("#infoCurrent");
-        var mapTypes = document.getElementsByName("mapType");
-        var showGrid = document.querySelector("#showGrid");
-        let realGrid = document.querySelector("#realGrid");
-        var openSelect = document.querySelector("#openSelect");
-        var clearSelect = document.querySelector("#clearSelect");
-        var selectNW = document.querySelector("#selectNW");
-        var selectNE = document.querySelector("#selectNE");
-        var selectSE = document.querySelector("#selectSE");
-        var selectSW = document.querySelector("#selectSW");
-
-        var selectALl = document.querySelector("#selectALl");
-        var unselectALl = document.querySelector("#unselectALl");
-        var levelChecks = document.getElementsByName("levelChecks");
-        var dialogProgress = document.querySelector("#dialogProgress");
-
-        // 当前地图选区
-        var currentBounds;
-        // 当前地图缩放层级
-        var currentZoom = options.zoom;
-        // 地图是否正在选择区域的标识
-        var rectangling = false;
-        // 下载是否层级全选的标识
-        var selected = false;
-        // 实际下载区域的绘制对象
-        var realGridRectangle = undefined;
-
-        function onLoad() {
-            // 瓦片图层
-            let tileLayer = new T.TileLayer(options.imageCURL, { minZoom: options.minZoom, maxZoom: options.maxZoom });
-            // 网格线图层
-            let tileGrid = new T.GridlineLayer({
-                opacity: options.showGrid ? 1 : 0,
-                outlineSize: {
-                    width: 1,
-                    color: "#fff"
-                },
-                textSize: {
-                    ontSize: "14",
-                    display: true,
-                    color: "red",
-                    fontWeight: true
-                }
-            });
-            //初始化地图对象
-            map = new T.Map("map", {
-                projection: "EPSG:4326", // 经纬度坐标系，默认墨卡托
-                layers: [tileLayer]
-            });
-            map.addLayer(tileGrid);
-            map.centerAndZoom(new T.LngLat(...options.center), options.zoom);
-
-            // 注册鼠标滑动事件
-            map.addEventListener("mousemove", onMousemove);
-            // 注册鼠标拖拽地图事件
-            map.addEventListener("moveend", onMouseend);
-            // 注册地图层级缩放事件
-            map.addEventListener("zoomend", onZoomend);
-
-            let rectangleTool = new T.RectangleTool(map);
-            rectangleTool.addEventListener("draw", (e) => {
-                let bounds = e.currentBounds;
-                let ne = bounds.getNorthEast();   //可视区域右上角
-                let sw = bounds.getSouthWest();   //可视区域左下角
-                // 左上，西北
-                selectNW.innerHTML = `${sw.lng.toFixed(6)},${ne.lat.toFixed(6)}`;
-                // 右上，东北
-                selectNE.innerHTML = `${ne.lng.toFixed(6)},${ne.lat.toFixed(6)}`;
-                // 右下，东南
-                selectSE.innerHTML = `${ne.lng.toFixed(6)},${sw.lat.toFixed(6)}`;
-                // 左下，西南
-                selectSW.innerHTML = `${sw.lng.toFixed(6)},${sw.lat.toFixed(6)}`;
-
-                rectangling = !rectangling;
-                openSelect.innerHTML = "选择区域";
-                openSelect.className = "nes-btn is-success";
-                rectangleTool.close();
-                currentBounds = bounds;
-            });
-
-            mapTypes.forEach((radio) => {
-                radio.addEventListener("change", (e) => {
-                    tileLayer.setUrl(options[radio.value]);
-                })
-            });
-
-            showGrid.addEventListener("change", (e) => {
-                e.target.checked ? tileGrid.setOpacity(1) : tileGrid.setOpacity(0);
-            });
-
-            openSelect.addEventListener("click", (e) => {
-                rectangling = !rectangling;
-                if (rectangling) {
-                    openSelect.innerHTML = "取消选择";
-                    openSelect.className = "nes-btn is-error";
-                    if (realGridRectangle) removeRealGrid();
-                    rectangleTool.clear();
-                    rectangleTool.open();
-                }
-                else {
-                    openSelect.innerHTML = "选择区域";
-                    openSelect.className = "nes-btn is-success";
-                    rectangleTool.close();
-                }
-            });
-
-            clearSelect.addEventListener("click", (e) => {
-                rectangleTool.clear();
-                currentBounds = undefined;
-                if (realGridRectangle) removeRealGrid();
-            })
-
-            // 初始化面板信息块
-            let center = map.getCenter();
-            let bounds = map.getBounds();
-            let ne = bounds.getNorthEast();   //可视区域右上角
-            let sw = bounds.getSouthWest();   //可视区域左下角
-            infoCurrent.innerHTML = `${center.getLng().toFixed(6)},${center.getLat().toFixed(6)}`;
-            infoCenter.innerHTML = `${center.getLng().toFixed(6)},${center.getLat().toFixed(6)}`;
-            infoNECoordinate.innerHTML = `${ne.getLng().toFixed(6)},${ne.getLat().toFixed(6)}`;
-            infoSWCoordinate.innerHTML = `${sw.getLng().toFixed(6)},${sw.getLat().toFixed(6)}`;
-            infoZoom.innerHTML = map.getZoom();
-
-        }
-
-        function onMousemove(e) {
-            infoCurrent.innerHTML = `${e.lnglat.getLng().toFixed(6)},${e.lnglat.getLat().toFixed(6)}`
-        }
-
-        function onMouseend(e) {
-            let map = e.target;
-            let center = map.getCenter();
-            let bounds = map.getBounds();
-            let ne = bounds.getNorthEast();   //可视区域右上角
-            let sw = bounds.getSouthWest();   //可视区域左下角
-            infoCenter.innerHTML = `${center.getLng().toFixed(6)},${center.getLat().toFixed(6)}`;
-            infoNECoordinate.innerHTML = `${ne.getLng().toFixed(6)},${ne.getLat().toFixed(6)}`;
-            infoSWCoordinate.innerHTML = `${sw.getLng().toFixed(6)},${sw.getLat().toFixed(6)}`;
-        }
-
-        function onZoomend(e) {
-            currentZoom = e.target.getZoom();
-            infoZoom.innerHTML = currentZoom;
-        }
-
-        function onUnselectALl() {
-            selected = false;
-            levelChecks.forEach(i => i.checked = false)
-        }
-
-        function onSelectALl() {
-            selected = true;
-            levelChecks.forEach(i => i.checked = true)
-        }
-
-        function onOpenDownloadDialog() {
-            if (currentBounds) {
-                if (realGridRectangle) removeRealGrid();
-                document.getElementById("downloadDialog").style.display = "flex";
-                dialogProgress.value = 0;
-            } else {
-                document.getElementById("alertDialog").style.display = "flex";
-                document.getElementById("dialogMessage").innerHTML = "对不起，请先选择需要下载的区域"
-            }
-        }
-
-        function onDownload() {
-            console.log("currentBounds:", currentBounds);
-            if (currentBounds) {
-                let ne = currentBounds.getNorthEast();   //可视区域右上角
-                let sw = currentBounds.getSouthWest();   //可视区域左下角
-
-                let data = {
-                    nw: [sw.lng, ne.lat],
-                    ne: [ne.lng, ne.lat],
-                    se: [ne.lng, sw.lat],
-                    sw: [sw.lng, sw.lat],
-                }
-
-                let levels = [];
-                levelChecks.forEach((i) => {
-                    if (i.checked) levels.push(i.value);
-                });
-
-                let step = 100 / levels.length;
-
-                levels.forEach((level) => {
-                    data.zoom = level * 1;
-                    let xhr = new XMLHttpRequest();
-                    // NOTE 同步请求相当于单线程，后台顺序执行。异步相当于多线程，后台同时处理多个请求处理
-                    xhr.open("post", `/getBoundsOrigins`, true);
-                    xhr.setRequestHeader("Content-Type", "application/json");
-                    xhr.onreadystatechange = function () {
-                        // 0:表示没有初始化，说明还没有创建对象
-                        // 1:表示已经创建对象但是，还没有发送请求
-                        // 2:表示已经发送，对方已经收到消息了，但是还没有彻底看懂我们什么意思，还有很多事情需要准备
-                        // 3:服务器已经在给我们响应信息了，但是信息不完整
-                        // 4:数据已经完整了，可以接收到完整的数据了
-                        if (xhr.readyState === 4 && xhr.status === 200) {
-                            let data = JSON.parse(xhr.responseText);
-                            if (realGrid.checked && !realGridRectangle) {
-                                let bounds = new T.LngLatBounds(new T.LngLat(...data.coordinate.sw), new T.LngLat(...data.coordinate.ne));
-                                realGridRectangle = new T.Rectangle(bounds, {
-                                    color: "#FF0000",
-                                    fillColor: "#FFFFFF",
-                                    fillOpacity: 0,
-                                    lineStyle: "dashed",
-                                });
-                                map.addOverLay(realGridRectangle);
-                            }
-                            dialogProgress.value += step;
-                        }
-                    }
-                    xhr.send(JSON.stringify(data));
-                });
-            } else
-                throw new Error("下载错误，未选择下载区域")
-        }
-
-        function removeRealGrid() {
-            map.removeOverLay(realGridRectangle);
-            realGridRectangle = undefined;
-        }
-    </script>
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
 </body>
 
 </html>
