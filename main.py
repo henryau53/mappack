@@ -26,6 +26,48 @@ def hello() -> str:
     return render_template("tianditu.html")
 
 
+@app.route("/info/rectangle", methods=["POST"])
+def get_rectangle_info() -> Tuple[str, int]:
+    """根据POST参数计算矩形区域的瓦片坐标与瓦片顶点坐标
+
+    Returns:
+        Tuple[str, int]: Flask 返回值
+    """
+    data = request.get_json()
+    level = int(data["zoom"])
+
+    # 计算瓦片坐标
+    tile_nw = map.tianditu_EPSG4326_to_tile_position(*data["nw"], level)
+    tile_ne = map.tianditu_EPSG4326_to_tile_position(*data["ne"], level)
+    tile_se = map.tianditu_EPSG4326_to_tile_position(*data["se"], level)
+    tile_sw = map.tianditu_EPSG4326_to_tile_position(*data["sw"], level)
+
+    # 计算坐标区域的瓦片四个原点坐标
+    coordinate_nw = map.tianditu_tile_position_to_EPSG4326(*tile_nw)
+    coordinate_ne = map.tianditu_tile_position_to_EPSG4326(tile_ne[0], tile_ne[1] + 1, tile_ne[2])
+    coordinate_se = map.tianditu_tile_position_to_EPSG4326(tile_se[0] + 1, tile_se[1] + 1, tile_se[2])
+    coordinate_sw = map.tianditu_tile_position_to_EPSG4326(tile_sw[0] + 1, tile_sw[1], tile_sw[2])
+
+    # 响应返回数据
+    result = {
+        "coordinate": {
+            "nw": coordinate_nw,
+            "ne": coordinate_ne,
+            "se": coordinate_se,
+            "sw": coordinate_sw,
+        },
+        "tile": {
+            "nw": tile_nw,
+            "ne": tile_ne,
+            "se": tile_se,
+            "sw": tile_sw,
+        },
+        "zoom": level,
+    }
+
+    return str(Result.success(result)), 200
+
+
 @app.route("/download/progress/<uuid>", methods=["GET", "DELETE"])
 def download_progress(uuid: str) -> Tuple[str, int]:
     """根据请求方式，删除或者获取指定uuid的下载进度缓存。

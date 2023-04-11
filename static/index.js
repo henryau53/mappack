@@ -169,6 +169,18 @@
     // 左下，西南
     selectedSW.innerHTML = `${sw.lng.toFixed(6)},${sw.lat.toFixed(6)}`;
 
+    if (isDownloadline) {
+      if (downloadRectangle) removeDownloadline();
+      let data = {
+        zoom: currentZoom,
+        nw: [sw.lng, ne.lat],
+        ne: [ne.lng, ne.lat],
+        se: [ne.lng, sw.lat],
+        sw: [sw.lng, sw.lat],
+      };
+      drawDownloadline(data);
+    }
+
     isRectangling = !isRectangling;
     openSelect.innerHTML = "选择区域";
     openSelect.className = "nes-btn is-success";
@@ -234,6 +246,18 @@
 
   function onDomDownloadline(e) {
     isDownloadline = e.target.checked;
+    if (isDownloadline && currentBounds) {
+      let ne = currentBounds.getNorthEast(); //可视区域右上角
+      let sw = currentBounds.getSouthWest(); //可视区域左下角
+      let data = {
+        zoom: currentZoom,
+        nw: [sw.lng, ne.lat],
+        ne: [ne.lng, ne.lat],
+        se: [ne.lng, sw.lat],
+        sw: [sw.lng, sw.lat],
+      };
+      drawDownloadline(data);
+    } else if (!isDownloadline && downloadRectangle) removeDownloadline();
   }
 
   function onDomOpenSelect(e) {
@@ -241,7 +265,7 @@
     if (isRectangling) {
       openSelect.innerHTML = "取消选择";
       openSelect.className = "nes-btn is-error";
-      if (downloadRectangle) removeRealGrid();
+      if (downloadRectangle) removeDownloadline();
       currentBounds = undefined;
       rectangleTool.clear();
       rectangleTool.open();
@@ -255,7 +279,7 @@
   function onDomClearSelect(e) {
     rectangleTool.clear();
     currentBounds = undefined;
-    if (downloadRectangle) removeRealGrid();
+    if (downloadRectangle) removeDownloadline();
   }
 
   function onDomSelectALl(e) {
@@ -270,7 +294,6 @@
 
   function onOpenDownloadDialog(e) {
     if (currentBounds) {
-      if (downloadRectangle) removeRealGrid();
       downloadDialog.style.display = "flex";
     } else {
       alertDialog.style.display = "flex";
@@ -338,19 +361,6 @@
       // 4:数据已经完整了，可以接收到完整的数据了
       if (xhr.readyState === 4 && xhr.status === 200) {
         let result = JSON.parse(xhr.responseText);
-        if (isDownloadline && !downloadRectangle) {
-          let bounds = new T.LngLatBounds(
-            new T.LngLat(...result.data.coordinate.sw),
-            new T.LngLat(...result.data.coordinate.ne)
-          );
-          downloadRectangle = new T.Rectangle(bounds, {
-            color: "#FF0000",
-            fillColor: "#FFFFFF",
-            fillOpacity: 0,
-            lineStyle: "dashed",
-          });
-          map.addOverLay(downloadRectangle);
-        }
       }
     };
     xhr.send(JSON.stringify(data));
@@ -382,7 +392,6 @@
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
         clearInterval(timmer);
-        console.log("doDeleteDownloadTaskCache:", xhr.responseText);
       }
     };
     xhr.send();
@@ -408,7 +417,30 @@
     return progress;
   }
 
-  function removeRealGrid() {
+  function drawDownloadline(data) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("post", `/info/rectangle`, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        let result = JSON.parse(xhr.responseText);
+        let bounds = new T.LngLatBounds(
+          new T.LngLat(...result.data.coordinate.sw),
+          new T.LngLat(...result.data.coordinate.ne)
+        );
+        downloadRectangle = new T.Rectangle(bounds, {
+          color: "#FF0000",
+          fillColor: "#FFFFFF",
+          fillOpacity: 0,
+          lineStyle: "dashed",
+        });
+        map.addOverLay(downloadRectangle);
+      }
+    };
+    xhr.send(JSON.stringify(data));
+  }
+
+  function removeDownloadline() {
     map.removeOverLay(downloadRectangle);
     downloadRectangle = undefined;
   }
