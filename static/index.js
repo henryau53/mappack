@@ -16,8 +16,6 @@
   let selectAllZooms = document.querySelector("#selectAllZooms"); // 下载弹窗全部选择按钮
   let unselectAllZooms = document.querySelector("#unselectAllZooms"); // 下载弹窗取消全选按钮
   let progressContainer = document.querySelector("#progressContainer"); // 下载弹窗进度条容器
-  // let progressBar = document.querySelector("#progressBar"); // 下载弹窗进度条元素
-  // let progressValue = document.querySelector("#progressValue"); // 下载弹窗进度条百分比值元素
 
   let openDownload = document.querySelector("#openDownload"); // 下载弹窗触发按钮
   let downloadDialog = document.querySelector("#downloadDialog"); // 下载窗口
