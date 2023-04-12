@@ -26,7 +26,7 @@
   let cancelAlert = document.querySelector("#cancelAlert"); // 警告弹窗中的取消按钮
 
   let zoomCheckbox = document.getElementsByName("zoomCheckbox"); // 下载弹窗所有层级复选框
-  let mapTypes = document.getElementsByName("mapType"); // 地图类型两个复选框
+  let mapTypes = document.getElementsByName("mapType"); // 地图类型单选框
 
   let options = {
     // token
@@ -37,38 +37,40 @@
     minZoom: 1,
     // 最大层级
     maxZoom: 18,
-    // 默认中心点（北京天安门）
+    // 经纬度默认中心点（北京天安门）
     center: [116.39088, 39.91157],
-    // 是否显示网格
-    isGridline: false,
-
-    /****** 伪墨卡托 ******/
-    // 影像图地址
-    imageWURL:
-      "http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-    // 影像注记地址
-    ciaWURL:
-      "http://t0.tianditu.gov.cn/cia_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cia&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-    // 矢量图地址
-    vectorWURL:
-      "http://t0.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-    // 矢量注记地址
-    cvaWURL:
-      "http://t0.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-
-    /****** 经纬度 ******/
-    // 影像图地址
-    imageCURL:
-      "http://t0.tianditu.gov.cn/img_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-    // 影像注记地址
-    ciaCURL:
-      "http://t0.tianditu.gov.cn/cia_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cia&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-    // 矢量图地址
-    vectorCURL:
-      "http://t0.tianditu.gov.cn/vec_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-    // 矢量注记地址
-    cvaCURL:
-      "http://t0.tianditu.gov.cn/cva_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+    // 经纬度投影
+    projection4326: {
+      code: "EPSG:4326",
+      // 影像图地址
+      imageURL:
+        "http://t0.tianditu.gov.cn/img_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+      // 影像注记地址
+      ciaURL:
+        "http://t0.tianditu.gov.cn/cia_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cia&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+      // 矢量图地址
+      vectorURL:
+        "http://t0.tianditu.gov.cn/vec_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+      // 矢量注记地址
+      cvaURL:
+        "http://t0.tianditu.gov.cn/cva_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+    },
+    // 伪墨卡托投影
+    projection900913: {
+      code: "EPSG:900913",
+      // 影像图地址
+      imageURL:
+        "http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+      // 影像注记地址
+      ciaURL:
+        "http://t0.tianditu.gov.cn/cia_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cia&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+      // 矢量图地址
+      vectorURL:
+        "http://t0.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+      // 矢量注记地址
+      cvaURL:
+        "http://t0.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+    },
   };
 
   // 天地图对象
@@ -91,6 +93,8 @@
   let isRectangling = false;
   // 下载窗口中记录层级是否全选的标识
   let isAllZooms = false;
+  // 是否显示网格
+  let isGridline = false;
   // 是否显示实际下载区域
   let isDownloadline = false;
   // 实际下载区域的绘制对象
@@ -106,19 +110,19 @@
   function initMap() {
     /****** 初始化地图组件 ******/
     // 初始化天地图瓦片图层
-    tileLayer = new T.TileLayer(options.imageCURL, {
+    tileLayer = new T.TileLayer(options.projection4326.imageURL, {
       minZoom: options.minZoom,
       maxZoom: options.maxZoom,
     });
     // 初始化天地图注记图层
-    annotationLayer = new T.TileLayer(options.ciaCURL, {
+    annotationLayer = new T.TileLayer(options.projection4326.ciaURL, {
       minZoom: options.minZoom,
       maxZoom: options.maxZoom,
     });
 
     // 初始化天地图网格线图层
     gridlineLayer = new T.GridlineLayer({
-      opacity: options.isGridline ? 1 : 0,
+      opacity: isGridline ? 1 : 0,
       outlineSize: {
         width: 1,
         color: "#fff",
@@ -136,7 +140,7 @@
 
     //初始化天地图地图对象
     map = new T.Map("map", {
-      projection: "EPSG:4326", // 经纬度坐标系，默认墨卡托
+      projection: options.projection4326.code, // 配置投影坐标系
       layers: [tileLayer, annotationLayer, gridlineLayer],
     });
     map.centerAndZoom(new T.LngLat(...options.center), options.zoom);
@@ -247,7 +251,7 @@
    */
   function initDomEvent() {
     mapTypes.forEach((radio) => {
-      radio.addEventListener("change", onDomChageMapType);
+      radio.addEventListener("change", onDomChangeMapType);
     });
     showGridline.addEventListener("change", onDomShowGridline);
     showDownloadline.addEventListener("change", onDomDownloadline);
@@ -261,16 +265,16 @@
     cancelAlert.addEventListener("click", onCancelAlert);
   }
 
-  function onDomChageMapType(e) {
+  function onDomChangeMapType(e) {
     let tileUrl, annotationUrl;
     switch (e.target.value) {
       case "image":
-        tileUrl = options.imageCURL;
-        annotationUrl = options.ciaCURL;
+        tileUrl = options.projection4326.imageURL;
+        annotationUrl = options.projection4326.ciaURL;
         break;
       case "vector":
-        tileUrl = options.vectorCURL;
-        annotationUrl = options.cvaCURL;
+        tileUrl = options.projection4326.vectorURL;
+        annotationUrl = options.projection4326.cvaURL;
         break;
     }
     tileLayer.setUrl(tileUrl);
@@ -278,9 +282,8 @@
   }
 
   function onDomShowGridline(e) {
-    e.target.checked
-      ? gridlineLayer.setOpacity(1)
-      : gridlineLayer.setOpacity(0);
+    isGridline = e.target.checked;
+    isGridline ? gridlineLayer.setOpacity(1) : gridlineLayer.setOpacity(0);
   }
 
   function onDomDownloadline(e) {

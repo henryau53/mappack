@@ -4,7 +4,7 @@ import math
 from typing import Tuple
 
 # 经纬度坐标系WGS84：EPSG:4326，地图单位为度
-# 伪墨卡托投影（Pseudo-Mercator）：EPSG:3857，地图单位为米
+# 伪墨卡托投影（Pseudo-Mercator）：EPSG:3857（EPSG:900913），地图单位为米
 
 # 地球半径
 R = 6378137
