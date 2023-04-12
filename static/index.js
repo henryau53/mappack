@@ -37,28 +37,48 @@
     minZoom: 1,
     // 最大层级
     maxZoom: 18,
-    // 默认中心点
-    center: [106.58828259, 29.56782092],
+    // 默认中心点（北京天安门）
+    center: [116.39088, 39.91157],
     // 是否显示网格
     isGridline: false,
-    // 伪墨卡托影像图地址
+
+    /****** 伪墨卡托 ******/
+    // 影像图地址
     imageWURL:
       "http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-    // 伪墨卡托矢量图地址
+    // 影像注记地址
+    ciaWURL:
+      "http://t0.tianditu.gov.cn/cia_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cia&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+    // 矢量图地址
     vectorWURL:
       "http://t0.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-    // 经纬度影像图地址
+    // 矢量注记地址
+    cvaWURL:
+      "http://t0.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+
+    /****** 经纬度 ******/
+    // 影像图地址
     imageCURL:
       "http://t0.tianditu.gov.cn/img_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
-    // 经纬度矢量图地址
+    // 影像注记地址
+    ciaCURL:
+      "http://t0.tianditu.gov.cn/cia_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cia&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+    // 矢量图地址
     vectorCURL:
       "http://t0.tianditu.gov.cn/vec_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
+    // 矢量注记地址
+    cvaCURL:
+      "http://t0.tianditu.gov.cn/cva_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=71945204e48fec91a7e185f3c2ea1ea0",
   };
 
   // 天地图对象
   let map;
+  // 天地图控件
+  let mapControl;
   // 天地图瓦片图层对象
   let tileLayer;
+  // 天地图注记图层对象
+  let annotationLayer;
   // 天地图网格线图层对象
   let gridlineLayer;
   // 天地图矩形绘制工具对象
@@ -90,6 +110,11 @@
       minZoom: options.minZoom,
       maxZoom: options.maxZoom,
     });
+    // 初始化天地图注记图层
+    annotationLayer = new T.TileLayer(options.ciaCURL, {
+      minZoom: options.minZoom,
+      maxZoom: options.maxZoom,
+    });
 
     // 初始化天地图网格线图层
     gridlineLayer = new T.GridlineLayer({
@@ -106,12 +131,16 @@
       },
     });
 
+    mapControl = new T.Control.Zoom();
+    mapControl.setPosition(T_ANCHOR_TOP_LEFT);
+
     //初始化天地图地图对象
     map = new T.Map("map", {
       projection: "EPSG:4326", // 经纬度坐标系，默认墨卡托
-      layers: [tileLayer, gridlineLayer],
+      layers: [tileLayer, annotationLayer, gridlineLayer],
     });
     map.centerAndZoom(new T.LngLat(...options.center), options.zoom);
+    map.addControl(mapControl);
 
     rectangleTool = new T.RectangleTool(map);
 
@@ -233,7 +262,19 @@
   }
 
   function onDomChageMapType(e) {
-    tileLayer.setUrl(options[e.target.value]);
+    let tileUrl, annotationUrl;
+    switch (e.target.value) {
+      case "image":
+        tileUrl = options.imageCURL;
+        annotationUrl = options.ciaCURL;
+        break;
+      case "vector":
+        tileUrl = options.vectorCURL;
+        annotationUrl = options.cvaCURL;
+        break;
+    }
+    tileLayer.setUrl(tileUrl);
+    annotationLayer.setUrl(annotationUrl);
   }
 
   function onDomShowGridline(e) {
