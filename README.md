@@ -34,3 +34,10 @@ python ./main.py
 http://localhost:5000/
 ```
 
+
+
+## 截图
+
+![截图1](./docs/screenshot_1.png)
+
+![截图1](./docs/screenshot_2.png)
