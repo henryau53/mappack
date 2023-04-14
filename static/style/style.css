@@ -1,12 +1,6 @@
-@font-face {
-  font-family: zpix;
-  src: url("../static/zpix.ttf");
-}
-
 * {
   margin: 0;
   padding: 0;
-  font-family: "zpix";
   font-size: 16px;
 }
 
@@ -29,14 +23,13 @@ body {
   background-color: rgba(255, 255, 255, 0);
   z-index: 400;
   box-sizing: border-box;
-
-  .group {
-    margin-bottom: 10px !important;
-    .text {
-      height: 32px;
-      line-height: 32px;
-    }
-  }
+}
+.panel .group {
+  margin-bottom: 10px !important;
+}
+.panel .group .text {
+  height: 32px;
+  line-height: 32px;
 }
 
 .gap {
@@ -59,37 +52,36 @@ body {
   display: none;
   justify-content: center;
   align-items: center;
-
-  .checkgroup {
-    label {
-      margin-right: 8px;
-      &:last-child {
-        margin-right: 0px;
-      }
-    }
-  }
+}
+.dialog .checkgroup label {
+  margin-right: 8px;
+}
+.dialog .checkgroup label:last-child {
+  margin-right: 0px;
 }
 
 .progress-bar {
   border: 2px solid #ffffff;
   width: 100%;
   margin-bottom: 8px;
-  .value {
-    font-weight: bold;
-    font-size: 14px;
-    color: #fff;
-    margin-left: 4px;
-    float: left;
-    line-height: 24px;
-    height: 24px;
-  }
-  .bar {
-    background-color: #209cee;
-    height: 24px;
-    line-height: 24px;
-    transition: width 0.5s;
-    width: 0%;
-    text-align: right;
-    box-sizing: border-box;
-  }
 }
+.progress-bar .value {
+  font-weight: bold;
+  font-size: 14px;
+  color: #fff;
+  margin-left: 4px;
+  float: left;
+  line-height: 24px;
+  height: 24px;
+}
+.progress-bar .bar {
+  background-color: #209cee;
+  height: 24px;
+  line-height: 24px;
+  transition: width 0.5s;
+  width: 0%;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+/*# sourceMappingURL=style.css.map */

@@ -35,5 +35,3 @@ function generateUUID(len, radix) {
 
   return uuid.join("");
 }
-
-console.log(generateUUID(16,16))

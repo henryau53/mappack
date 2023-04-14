@@ -1,0 +1,95 @@
+// @font-face {
+//   font-family: zpix;
+//   src: url("../asset/zpix.ttf");
+// }
+
+* {
+  margin: 0;
+  padding: 0;
+  // font-family: "zpix";
+  font-size: 16px;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+.tianditu {
+  width: 100%;
+  height: 100%;
+}
+
+.panel {
+  width: 360px;
+  position: fixed;
+  top: 4px;
+  right: 8px;
+  background-color: rgba(255, 255, 255, 0);
+  z-index: 400;
+  box-sizing: border-box;
+
+  .group {
+    margin-bottom: 10px !important;
+    .text {
+      height: 32px;
+      line-height: 32px;
+    }
+  }
+}
+
+.gap {
+  margin-top: 8px;
+}
+
+.nes-container {
+  padding: 1.5rem 1rem;
+}
+
+.dialog {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  overflow: hidden;
+  display: none;
+  justify-content: center;
+  align-items: center;
+
+  .checkgroup {
+    label {
+      margin-right: 8px;
+      &:last-child {
+        margin-right: 0px;
+      }
+    }
+  }
+}
+
+.progress-bar {
+  border: 2px solid #ffffff;
+  width: 100%;
+  margin-bottom: 8px;
+  .value {
+    font-weight: bold;
+    font-size: 14px;
+    color: #fff;
+    margin-left: 4px;
+    float: left;
+    line-height: 24px;
+    height: 24px;
+  }
+  .bar {
+    background-color: #209cee;
+    height: 24px;
+    line-height: 24px;
+    transition: width 0.5s;
+    width: 0%;
+    text-align: right;
+    box-sizing: border-box;
+  }
+}

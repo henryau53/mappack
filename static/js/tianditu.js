@@ -28,7 +28,9 @@
   let zoomCheckbox = document.getElementsByName("zoomCheckbox"); // 下载弹窗所有层级复选框
   let mapTypes = document.getElementsByName("mapType"); // 地图类型单选框
 
-  let options = {
+  let projectionCode = document.querySelector("#projectionCode").value; // 当前页面投影坐标系代号
+
+  let preset = {
     // token
     token: "71945204e48fec91a7e185f3c2ea1ea0",
     // 初始化层级
@@ -73,6 +75,12 @@
     },
   };
 
+  // 配置投影坐标系
+  let currentProjection =
+    projectionCode == "EPSG:4326"
+      ? preset.projection4326
+      : preset.projection900913;
+
   // 天地图对象
   let map;
   // 天地图控件
@@ -88,7 +96,7 @@
   // 当前已经选择了的地图选区
   let currentBounds;
   // 当前地图缩放层级
-  let currentZoom = options.zoom;
+  let currentZoom = preset.zoom;
   // 地图是否正在选择区域的标识
   let isRectangling = false;
   // 下载窗口中记录层级是否全选的标识
@@ -98,7 +106,7 @@
   // 是否显示实际下载区域
   let isDownloadline = false;
   // 实际下载区域的绘制对象
-  let downloadRectangle = undefined;
+  let downloadRectangle;
   // 当前下载中的所有进度条元素的集合
   let progresses = {};
 
@@ -110,14 +118,14 @@
   function initMap() {
     /****** 初始化地图组件 ******/
     // 初始化天地图瓦片图层
-    tileLayer = new T.TileLayer(options.projection4326.imageURL, {
-      minZoom: options.minZoom,
-      maxZoom: options.maxZoom,
+    tileLayer = new T.TileLayer(currentProjection.imageURL, {
+      minZoom: preset.minZoom,
+      maxZoom: preset.maxZoom,
     });
     // 初始化天地图注记图层
-    annotationLayer = new T.TileLayer(options.projection4326.ciaURL, {
-      minZoom: options.minZoom,
-      maxZoom: options.maxZoom,
+    annotationLayer = new T.TileLayer(currentProjection.ciaURL, {
+      minZoom: preset.minZoom,
+      maxZoom: preset.maxZoom,
     });
 
     // 初始化天地图网格线图层
@@ -140,10 +148,10 @@
 
     //初始化天地图地图对象
     map = new T.Map("map", {
-      projection: options.projection4326.code, // 配置投影坐标系
+      projection: currentProjection.code, // 配置投影坐标系
       layers: [tileLayer, annotationLayer, gridlineLayer],
     });
-    map.centerAndZoom(new T.LngLat(...options.center), options.zoom);
+    map.centerAndZoom(new T.LngLat(...preset.center), preset.zoom);
     map.addControl(mapControl);
 
     rectangleTool = new T.RectangleTool(map);
@@ -203,6 +211,7 @@
     if (isDownloadline) {
       if (downloadRectangle) removeDownloadline();
       let data = {
+        projection: projectionCode,
         zoom: currentZoom,
         nw: [sw.lng, ne.lat],
         ne: [ne.lng, ne.lat],
@@ -269,12 +278,12 @@
     let tileUrl, annotationUrl;
     switch (e.target.value) {
       case "image":
-        tileUrl = options.projection4326.imageURL;
-        annotationUrl = options.projection4326.ciaURL;
+        tileUrl = currentProjection.imageURL;
+        annotationUrl = currentProjection.ciaURL;
         break;
       case "vector":
-        tileUrl = options.projection4326.vectorURL;
-        annotationUrl = options.projection4326.cvaURL;
+        tileUrl = currentProjection.vectorURL;
+        annotationUrl = currentProjection.cvaURL;
         break;
     }
     tileLayer.setUrl(tileUrl);
@@ -292,6 +301,7 @@
       let ne = currentBounds.getNorthEast(); //可视区域右上角
       let sw = currentBounds.getSouthWest(); //可视区域左下角
       let data = {
+        projection: projectionCode,
         zoom: currentZoom,
         nw: [sw.lng, ne.lat],
         ne: [ne.lng, ne.lat],
@@ -358,6 +368,8 @@
         ne: [ne.lng, ne.lat],
         se: [ne.lng, sw.lat],
         sw: [sw.lng, sw.lat],
+        type: "img",
+        projection: projectionCode,
       };
 
       let levels = [];
@@ -393,7 +405,7 @@
   function doDownloadTiles(data) {
     let xhr = new XMLHttpRequest();
     // NOTE 同步请求相当于单线程，后台顺序执行。异步相当于多线程，后台同时处理多个请求处理
-    xhr.open("post", `/download/tiles`, true);
+    xhr.open("post", `/tianditu/download/tiles`, true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = function () {
       // 0:表示没有初始化，说明还没有创建对象
@@ -411,16 +423,16 @@
   function doTrackProgress(uuid) {
     let progressTimer = setInterval(() => {
       let xhr = new XMLHttpRequest();
-      xhr.open("get", `/download/progress/${uuid}`, true);
+      xhr.open("get", `/tianditu/download/progress/${uuid}`, true);
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
           let result = JSON.parse(xhr.responseText);
-          let { current, total, level } = result.data;
+          let { current, total, zoom } = result.data;
           let percent = ((current / total) * 100).toFixed(2);
-          let [valueElement, barElement] = progresses[level].children;
+          let [valueElement, barElement] = progresses[zoom].children;
           barElement.style.width = `${percent}%`;
-          valueElement.innerHTML = `${level}级 （${percent}%）`;
+          valueElement.innerHTML = `${zoom}级 （${percent}%）`;
           if (current == total) doDeleteDownloadTaskCache(uuid, progressTimer);
         }
       };
@@ -430,13 +442,36 @@
 
   function doDeleteDownloadTaskCache(uuid, timmer) {
     let xhr = new XMLHttpRequest();
-    xhr.open("delete", `/download/progress/${uuid}`, true);
+    xhr.open("delete", `/tianditu/download/progress/${uuid}`, true);
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
         clearInterval(timmer);
       }
     };
     xhr.send();
+  }
+
+  function drawDownloadline(data) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("post", `/tianditu/info/rectangle`, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        let result = JSON.parse(xhr.responseText);
+        let bounds = new T.LngLatBounds(
+          new T.LngLat(...result.data.coordinate.sw),
+          new T.LngLat(...result.data.coordinate.ne)
+        );
+        downloadRectangle = new T.Rectangle(bounds, {
+          color: "#FF0000",
+          fillColor: "#FFFFFF",
+          fillOpacity: 0,
+          lineStyle: "dashed",
+        });
+        map.addOverLay(downloadRectangle);
+      }
+    };
+    xhr.send(JSON.stringify(data));
   }
 
   function createProgressElement(label) {
@@ -457,29 +492,6 @@
     progress.appendChild(progressValue);
     progress.appendChild(progressBar);
     return progress;
-  }
-
-  function drawDownloadline(data) {
-    let xhr = new XMLHttpRequest();
-    xhr.open("post", `/info/rectangle`, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        let result = JSON.parse(xhr.responseText);
-        let bounds = new T.LngLatBounds(
-          new T.LngLat(...result.data.coordinate.sw),
-          new T.LngLat(...result.data.coordinate.ne)
-        );
-        downloadRectangle = new T.Rectangle(bounds, {
-          color: "#FF0000",
-          fillColor: "#FFFFFF",
-          fillOpacity: 0,
-          lineStyle: "dashed",
-        });
-        map.addOverLay(downloadRectangle);
-      }
-    };
-    xhr.send(JSON.stringify(data));
   }
 
   function removeDownloadline() {
