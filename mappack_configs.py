@@ -3,12 +3,12 @@
 import os
 import logging
 
+# 项目console日志等级
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(funcName)s]: %(message)s")
+
 # -----< 通用配置 >-----
 # 项目根目录
 BASE_DIR = os.path.abspath('.')
-
-# 项目console日志等级
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(funcName)s]: %(message)s")
 
 # 通用 User-Agent
 USER_AGENTS = [
@@ -23,6 +23,9 @@ USER_AGENTS = [
 ]
 
 # -----< 天地图配置 >-----
+# 天地图tocken
+TIANDITU_TOKEN = "71945204e48fec91a7e185f3c2ea1ea0"
+
 # 天地图瓦片下载目录
 TIANDITU_TILE_PATH = os.path.join(BASE_DIR, "dist/tianditu/tile")
 
@@ -32,11 +35,33 @@ TIANDITU_BUNDLE_PATH = os.path.join(BASE_DIR, "dist/tianditu/bundle")
 # 天地图GeoTiff放置目录
 TIANDITU_GEOTIFF_PATH = os.path.join(BASE_DIR, "dist/tianditu/geotiff")
 
-# 天地图tocken
-TIANDITU_TOKEN = "71945204e48fec91a7e185f3c2ea1ea0"
+# 天地图经纬度投影目录前缀
+TIANDITU_DIRECTORY = {
+    "EPSG:4326": "epsg4326",
+    "EPSG:3857": "epsg3857",
+    "EPSG:900913": "epsg3857",
+    "img": "img",
+    "vec": "vec",
+}
 
-# 天地图影像底图经纬度瓦片请求地址
-TIANDITU_IMG_C_URL = f"http://t0.tianditu.gov.cn/img_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX=%s&TILEROW=%s&TILECOL=%s&tk={TIANDITU_TOKEN}"
-
-# 天地图影像底图墨卡托瓦片请求地址
-TIANDITU_IMG_W_URL = f"http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX=%s&TILEROW=%s&TILECOL=%s&tk={TIANDITU_TOKEN}"
+# 天地图瓦片请求url
+TIANDITU_URL = {
+    "EPSG:4326": {
+        "img":
+            f"http://t0.tianditu.gov.cn/img_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX=%s&TILEROW=%s&TILECOL=%s&tk={TIANDITU_TOKEN}",
+        "vec":
+            f"http://t0.tianditu.gov.cn/vec_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX=%s&TILEROW=%s&TILECOL=%s&tk={TIANDITU_TOKEN}"
+    },
+    "EPSG:3857": {
+        "img":
+            f"http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX=%s&TILEROW=%s&TILECOL=%s&tk={TIANDITU_TOKEN}",
+        "vec":
+            f"http://t0.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX=%s&TILEROW=%s&TILECOL=%s&tk={TIANDITU_TOKEN}"
+    },
+    "EPSG:900913": {
+        "img":
+            f"http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX=%s&TILEROW=%s&TILECOL=%s&tk={TIANDITU_TOKEN}",
+        "vec":
+            f"http://t0.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX=%s&TILEROW=%s&TILECOL=%s&tk={TIANDITU_TOKEN}"
+    }
+}

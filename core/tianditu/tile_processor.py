@@ -5,25 +5,26 @@ from typing import List
 import urllib3
 import logging
 from osgeo import gdal, osr
+from core.constants import EPSG4326
 from mappack_configs import USER_AGENTS
 
-manager = urllib3.PoolManager(timeout=5.0, retries=3)
+manager = urllib3.PoolManager(timeout=5.0, retries=3, num_pools=256)
 
 
-def fetch_tile(url: str, row: int, col: int, level: int, save_as: str) -> bool:
+def fetch_tile(url: str, row: int, col: int, zoom: int, save_as: str) -> bool:
     """根据指定的下载地址下载并保存指定的瓦片图。
 
     Args:
         url (str): 瓦片图下载地址
         row (int): 瓦片图所属行号
         col (int): 瓦片图所属列号
-        level (int): 瓦片图层级
+        zoom (int): 瓦片图层级
         save_as (str): 保存的文件路径与名称
 
     Returns:
         bool: 成功返回True，失败返回False
     """
-    tile_url = url % (level, row, col)
+    tile_url = url % (zoom, row, col)
     response = manager.request("GET", tile_url, headers={"User-Agent": random.choice(USER_AGENTS)})
     logging.debug(f"瓦片地址：{tile_url}")
     if response.data:
@@ -36,7 +37,7 @@ def fetch_tile(url: str, row: int, col: int, level: int, save_as: str) -> bool:
         return False
 
 
-def translate_geotiff(nw: List[float], se: List[float], input: str, output: str, epsg: str = "EPSG:4326") -> None:
+def translate_geotiff(nw: List[float], se: List[float], input: str, output: str, epsg: str = EPSG4326) -> None:
     """转换图片为geotiff格式，实际将空间信息加入到图片中。
 
     Args:
@@ -81,7 +82,7 @@ def translate_geotiff_gcp(nw: List[float],
                           sw: List[float],
                           input: str,
                           output: str,
-                          epsg: str = "EPSG:4326") -> None:
+                          epsg: str = EPSG4326) -> None:
     """转换图片为geotiff格式，实际将空间信息加入到图片中，此方式使用空间信息校正方式。
 
     Args:

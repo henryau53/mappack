@@ -2,134 +2,134 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='nes.css/css/nes.min.css') }}">
-    <!-- <link rel="stylesheet" href="../node_modules/nes.css/css/nes.min.css"> -->
-    <!-- <link rel="stylesheet" href="../static/style.css"> -->
-    <!-- <script src="http://api.tianditu.gov.cn/api?v=4.0&tk=71945204e48fec91a7e185f3c2ea1ea0">
-    </script> -->
-    <script src="{{ url_for('static', filename='tianditu4.0.js') }}"></script>
-    <script src="{{ url_for('static', filename='utils.js') }}"></script>
-    <!-- <script src="../static/tianditu4.0.js"></script> -->
-    <title>天地图</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style/nes.css/css/nes.min.css') }}">
+        <script src="{{ url_for('static', filename='js/tianditu4.0.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+        <title>天地图</title>
 </head>
 
-<body onLoad="onLoad()">
+<body>
+        <div id="map" class="tianditu"></div>
+        <div class="panel">
+                <div class="nes-container is-dark with-title group">
+                        <div class="title">基础信息</div>
+                        <div class="text"><span>当前投影：</span><span>{% if projection == "EPSG:4326" %}经纬度坐标系{% else
+                                        %}伪墨卡托坐标系{% endif
+                                        %}
+                                </span></div>
+                        <div class="text"><span>中心坐标：</span><span id="infoCenter">00.00,00.00</span></div>
+                        <div class="text"><span>右上坐标：</span><span id="infoNECoordinate">00.00,00.00</span></div>
+                        <div class="text"><span>左下坐标：</span><span id="infoSWCoordinate">00.00,00.00</span></div>
+                        <div class="text"><span>当前层级：</span><span id="infoZoom">0</span>级</div>
+                        <div class="text"><span>当前坐标：</span><span id="infoCurrent">00.00,00.00</span></div>
+                </div>
+                <div class="nes-container is-dark with-title group">
+                        <div class="title">基本选项</div>
+                        <div>
 
-    <div id="map" class="tianditu"></div>
-    <div class="panel">
-        <div class="nes-container is-dark with-title group">
-            <div class="title">基础信息</div>
-            <div class="text"><span>中心坐标：</span><span id="infoCenter">00.00,00.00</span></div>
-            <div class="text"><span>右上坐标：</span><span id="infoNECoordinate">00.00,00.00</span></div>
-            <div class="text"><span>左下坐标：</span><span id="infoSWCoordinate">00.00,00.00</span></div>
-            <div class="text"><span>当前层级：</span><span id="infoZoom">0</span>级</div>
-            <div class="text"><span>当前坐标：</span><span id="infoCurrent">00.00,00.00</span></div>
-        </div>
-        <div class="nes-container is-dark with-title group">
-            <div class="title">基本选项</div>
-            <div>
-
-                <label><input type="radio" class="nes-radio is-dark" id="imageCMap" name="mapType" value="image"
-                        checked><span>影像地图</span></label>
-                <label><input type="radio" class="nes-radio is-dark" id="vectorCMap" name="mapType"
-                        value="vector"><span>矢量地图</span></label>
-            </div>
-            <div class="gap">
-                <label><input type="checkbox" class="nes-checkbox is-dark" id="showGridline"><span>是否显示网格</span></label>
-                <label><input type="checkbox" class="nes-checkbox is-dark"
-                        id="showDownloadline"><span>显示实际下载区域</span></label>
-            </div>
-        </div>
-        <div class="nes-container is-dark with-title group">
-            <div class="title">区域选择</div>
-            <div>
-                <div class="nes-field is-inline text"><span>左上坐标：</span><span id="selectedNW">00.00,00.00</span></div>
-                <div class="nes-field is-inline text"><span>右上坐标：</span><span id="selectedNE">00.00,00.00</span></div>
-                <div class="nes-field is-inline text"><span>右下坐标：</span><span id="selectedSE">00.00,00.00</span></div>
-                <div class="nes-field is-inline text"><span>左下坐标：</span><span id="selectedSW">00.00,00.00</span></div>
-            </div>
-            <div class="gap" style="margin-left: -4px;">
-                <button class="nes-btn is-success" id="openSelect">选择区域</button>
-                <button class="nes-btn is-primary" id="clearSelect">清除选择</button>
-                <button class="nes-btn" id="openDownload">下载</button>
-            </div>
-        </div>
-        <div class="dialog" id="downloadDialog">
-            <div class="nes-container is-dark with-title content">
-                <div class="title">瓦片下载</div>
-                <div>
-                    <div class="checkgroup">
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="1"><span>01级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="2"><span>02级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="3"><span>03级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="4"><span>04级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="5"><span>05级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="6"><span>06级</span></label>
-                    </div>
-                    <div class="checkgroup">
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="7"><span>07级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="8"><span>08级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="9"><span>09级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="10"><span>10级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="11"><span>11级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="12"><span>12级</span></label>
-                    </div>
-                    <div class="checkgroup">
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="13"><span>13级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="14"><span>14级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="15"><span>15级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="16"><span>16级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="17"><span>17级</span></label>
-                        <label><input type="checkbox" class="nes-checkbox is-dark" name="zoomCheckbox"
-                                value="18"><span>18级</span></label>
-                    </div>
+                                <label><input type="radio" class="nes-radio is-dark" id="imageCMap" name="mapType"
+                                                value="image" checked><span>影像地图</span></label>
+                                <label><input type="radio" class="nes-radio is-dark" id="vectorCMap" name="mapType"
+                                                value="vector"><span>矢量地图</span></label>
+                        </div>
+                        <div class="gap">
+                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                id="showGridline"><span>是否显示网格</span></label>
+                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                id="showDownloadline"><span>显示实际下载区域</span></label>
+                        </div>
                 </div>
-                <div id="progressContainer" class="gap">
-                    <!-- <div class="progress-bar">
-                        <div id="progressValue" class="value">18级别 (10%)</div>
-                        <div id="progressBar" class="bar"></div>
-                    </div> -->
+                <div class="nes-container is-dark with-title group">
+                        <div class="title">区域选择</div>
+                        <div>
+                                <div class="nes-field is-inline text"><span>左上坐标：</span><span
+                                                id="selectedNW">00.00,00.00</span></div>
+                                <div class="nes-field is-inline text"><span>右上坐标：</span><span
+                                                id="selectedNE">00.00,00.00</span></div>
+                                <div class="nes-field is-inline text"><span>右下坐标：</span><span
+                                                id="selectedSE">00.00,00.00</span></div>
+                                <div class="nes-field is-inline text"><span>左下坐标：</span><span
+                                                id="selectedSW">00.00,00.00</span></div>
+                        </div>
+                        <div class="gap" style="margin-left: -4px;">
+                                <button class="nes-btn is-success" id="openSelect">选择区域</button>
+                                <button class="nes-btn is-primary" id="clearSelect">清除选择</button>
+                                <button class="nes-btn" id="openDownload">下载</button>
+                        </div>
                 </div>
-                <div class="gap" style="text-align: right;">
-                    <button class="nes-btn" id="selectAllZooms">全部选中</button>
-                    <button class="nes-btn" id="unselectAllZooms">全部取消</button>
-                    <button class="nes-btn is-primary" id="download">确定下载</button>
-                    <button class="nes-btn is-success" id="cancelDownload">取消</button>
+                <div class="dialog" id="downloadDialog">
+                        <div class="nes-container is-dark with-title content">
+                                <div class="title">瓦片下载</div>
+                                <div>
+                                        <div class="checkgroup">
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="1"><span>01级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="2"><span>02级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="3"><span>03级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="4"><span>04级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="5"><span>05级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="6"><span>06级</span></label>
+                                        </div>
+                                        <div class="checkgroup">
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="7"><span>07级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="8"><span>08级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="9"><span>09级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="10"><span>10级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="11"><span>11级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="12"><span>12级</span></label>
+                                        </div>
+                                        <div class="checkgroup">
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="13"><span>13级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="14"><span>14级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="15"><span>15级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="16"><span>16级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="17"><span>17级</span></label>
+                                                <label><input type="checkbox" class="nes-checkbox is-dark"
+                                                                name="zoomCheckbox" value="18"><span>18级</span></label>
+                                        </div>
+                                </div>
+                                <div id="progressContainer" class="gap">
+                                </div>
+                                <div class="gap" style="text-align: right;">
+                                        <button class="nes-btn" id="selectAllZooms">全部选中</button>
+                                        <button class="nes-btn" id="unselectAllZooms">全部取消</button>
+                                        <button class="nes-btn is-primary" id="download">确定下载</button>
+                                        <button class="nes-btn is-success" id="cancelDownload">取消</button>
+                                </div>
+                        </div>
                 </div>
-            </div>
+                <div class="dialog" id="alertDialog">
+                        <div class="nes-container is-dark with-title content">
+                                <div class="title">提示</div>
+                                <div id="alertMessage"></div>
+                                <div class="gap" style="text-align: right;">
+                                        <button class="nes-btn is-success" id="cancelAlert">确定</button>
+                                </div>
+                        </div>
+                </div>
         </div>
-        <div class="dialog" id="alertDialog">
-            <div class="nes-container is-dark with-title content">
-                <div class="title">提示</div>
-                <div id="alertMessage"></div>
-                <div class="gap" style="text-align: right;">
-                    <button class="nes-btn is-success" id="cancelAlert">确定</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="{{ url_for('static', filename='index.js') }}"></script>
+        <input type="hidden" id="projectionCode" value="{{ projection }}" />
+        <script src="{{ url_for('static', filename='js/tianditu.js') }}"></script>
 </body>
 
 </html>
