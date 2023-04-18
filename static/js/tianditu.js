@@ -25,7 +25,8 @@
   let alertMessage = document.querySelector("#alertMessage"); // 警告弹窗信息文本块
   let cancelAlert = document.querySelector("#cancelAlert"); // 警告弹窗中的取消按钮
 
-  let zoomCheckbox = document.getElementsByName("zoomCheckbox"); // 下载弹窗所有层级复选框
+  let downloadZoom = document.getElementsByName("downloadZoom"); // 下载弹窗所有层级复选框
+  let downloadType = document.getElementsByName("downloadType"); // 下载弹窗下载类型
   let mapTypes = document.getElementsByName("mapType"); // 地图类型单选框
 
   let projectionCode = document.querySelector("#projectionCode").value; // 当前页面投影坐标系代号
@@ -107,8 +108,10 @@
   let isDownloadline = false;
   // 实际下载区域的绘制对象
   let downloadRectangle;
-  // 当前下载中的所有进度条元素的集合
+  // 当前下载中的所有进度条元素的映射集合
   let progresses = {};
+  // 当前下载中的定时请求的定时器的映射集合
+  let progressTimers = {};
 
   /**
    * @description 初始化地图
@@ -336,12 +339,12 @@
 
   function onDomSelectALl(e) {
     isAllZooms = true;
-    zoomCheckbox.forEach((i) => (i.checked = true));
+    downloadZoom.forEach((i) => (i.checked = true));
   }
 
   function onDomUnselectALl(e) {
     isAllZooms = false;
-    zoomCheckbox.forEach((i) => (i.checked = false));
+    downloadZoom.forEach((i) => (i.checked = false));
   }
 
   function onOpenDownloadDialog(e) {
@@ -355,6 +358,11 @@
 
   function onCancelDownload(e) {
     downloadDialog.style.display = "none";
+    for (let i in progressTimers) clearInterval(progressTimers[i]);
+    progressTimers = {};
+    progresses = {};
+    progressContainer.innerHTML = "";
+    downloadType.forEach((i) => (i.checked = false));
     onDomUnselectALl();
   }
 
@@ -368,26 +376,27 @@
         ne: [ne.lng, ne.lat],
         se: [ne.lng, sw.lat],
         sw: [sw.lng, sw.lat],
-        type: "img",
         projection: projectionCode,
       };
 
-      let levels = [];
       progresses = {};
-      zoomCheckbox.forEach((i) => {
-        if (i.checked) {
-          levels.push(i.value);
-          progresses[i.value] = createProgressElement(`${i.value}级 （0%）`);
-          progressContainer.appendChild(progresses[i.value]);
+      downloadType.forEach((type) => {
+        if (type.checked) {
+          downloadZoom.forEach((zoom) => {
+            if (zoom.checked) {
+              data.zoom = zoom.value * 1;
+              data.type = type.value;
+              data.uuid = generateUUID(16, 16);
+              let label = data.type == "img" ? "影像地图" : "矢量地图";
+              label = `${label}第${zoom.value}级 （0%）`;
+              progresses[data.uuid] = createProgressElement(label);
+              progressContainer.appendChild(progresses[data.uuid]);
+
+              doDownloadTiles(data);
+              doTrackProgress(data.uuid);
+            }
+          });
         }
-      });
-
-      levels.forEach((level) => {
-        data.zoom = level * 1;
-        data.uuid = generateUUID(16, 16);
-
-        doDownloadTiles(data);
-        doTrackProgress(data.uuid);
       });
     } else throw new Error("下载错误，未选择下载区域");
   }
@@ -428,24 +437,28 @@
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
           let result = JSON.parse(xhr.responseText);
-          let { current, total, zoom } = result.data;
+          let { uuid, current, total, zoom, type } = result.data;
           let percent = ((current / total) * 100).toFixed(2);
-          let [valueElement, barElement] = progresses[zoom].children;
+          let [valueElement, barElement] = progresses[uuid].children;
           barElement.style.width = `${percent}%`;
-          valueElement.innerHTML = `${zoom}级 （${percent}%）`;
-          if (current == total) doDeleteDownloadTaskCache(uuid, progressTimer);
+          let label = type == "img" ? "影像地图" : "矢量地图";
+          label = `${label}${zoom}级 （${percent}%）`;
+          valueElement.innerHTML = label;
+          if (current == total) doDeleteDownloadTaskCache(uuid);
         }
       };
       xhr.send();
     }, 1000);
+    progressTimers[uuid] = progressTimer;
   }
 
-  function doDeleteDownloadTaskCache(uuid, timmer) {
+  function doDeleteDownloadTaskCache(uuid) {
     let xhr = new XMLHttpRequest();
     xhr.open("delete", `/tianditu/download/progress/${uuid}`, true);
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
-        clearInterval(timmer);
+        clearInterval(progressTimers[uuid]);
+        progressTimers[uuid] = undefined;
       }
     };
     xhr.send();

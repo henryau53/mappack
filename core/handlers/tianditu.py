@@ -137,6 +137,8 @@ def download_tiles_of_EPSG4326(uuid: str, nw: List[float], ne: List[float], se: 
     total = abs(end_row - start_row + 1) * abs(end_col - start_col + 1)
 
     download_task_cache[uuid] = {}
+    # 记录当前下载唯一标识
+    download_task_cache[uuid]["uuid"] = uuid
     # 记录当前下载类型
     download_task_cache[uuid]["type"] = map_type
     # 记录当前下载层级
@@ -209,6 +211,8 @@ def download_tiles_of_EPSG3857(uuid: str, nw: List[float], ne: List[float], se: 
     total = abs(end_row - start_row + 1) * abs(end_col - start_col + 1)
 
     download_task_cache[uuid] = {}
+    # 记录当前下载唯一标识
+    download_task_cache[uuid]["uuid"] = uuid
     # 记录当前下载类型
     download_task_cache[uuid]["type"] = map_type
     # 记录当前下载层级

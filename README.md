@@ -41,3 +41,9 @@ http://localhost:5000/
 ![截图1](./docs/screenshot_1.png)
 
 ![截图1](./docs/screenshot_2.png)
+
+
+
+## Bug
+
+- 下载报`Connection pool is full, discarding connection: t0.tianditu.gov.cn. Connection pool size: 1`警告
