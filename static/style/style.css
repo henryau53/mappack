@@ -16,7 +16,7 @@ body {
 }
 
 .panel {
-  width: 360px;
+  width: 320px;
   position: fixed;
   top: 4px;
   right: 8px;
@@ -60,28 +60,42 @@ body {
   margin-right: 0px;
 }
 
-.progress-bar {
-  border: 2px solid #ffffff;
-  width: 100%;
-  margin-bottom: 8px;
+.progress {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 12px;
 }
-.progress-bar .value {
+.progress .progress-bar {
+  flex-grow: 1;
+  flex-shrink: 1;
+  border: 2px solid #ffffff;
+  position: relative;
+  box-sizing: border-box;
+  height: 32px;
+  line-height: 32px;
+}
+.progress .progress-bar .label {
   font-weight: bold;
   font-size: 14px;
   color: #fff;
   margin-left: 4px;
   float: left;
-  line-height: 24px;
-  height: 24px;
+  line-height: 28px;
+  height: 28px;
 }
-.progress-bar .bar {
+.progress .progress-bar .bar {
   background-color: #209cee;
-  height: 24px;
-  line-height: 24px;
+  height: 28px;
+  line-height: 28px;
   transition: width 0.5s;
   width: 0%;
   text-align: right;
   box-sizing: border-box;
+}
+.progress .icon {
+  padding: 2px 6px 5px 2px;
+  margin: 0px 5px;
 }
 
 /*# sourceMappingURL=style.css.map */

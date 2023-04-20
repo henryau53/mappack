@@ -6,11 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='style/style.css') }}"
+      href="{{ url_for('static', filename='style/nes.css/css/nes.min.css') }}"
     />
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='style/nes.css/css/nes.min.css') }}"
+      href="{{ url_for('static', filename='asset/fontawesome-free-6.0.0-web/css/fontawesome.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='asset/fontawesome-free-6.0.0-web/css/solid.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style/style.css') }}"
     />
     <script src="{{ url_for('static', filename='js/tianditu4.0.js') }}"></script>
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
@@ -280,7 +288,15 @@
               /><span>矢量地图</span></label
             >
           </div>
-          <div id="progressContainer" class="gap"></div>
+          <div id="progressContainer" class="gap">
+            <!-- <div class="progress">
+              <div class="progress-bar">
+                <div class="label">18级别 (10%)</div>
+                <div class="bar"></div>
+              </div>
+              <button class="nes-btn is-error fa-solid fa-ban icon"></button>
+            </div> -->
+          </div>
           <div class="gap" style="text-align: right">
             <button class="nes-btn" id="selectAllZooms">全部选中</button>
             <button class="nes-btn" id="unselectAllZooms">全部取消</button>

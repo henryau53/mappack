@@ -271,10 +271,10 @@
     clearSelect.addEventListener("click", onDomClearSelect);
     selectAllZooms.addEventListener("click", onDomSelectALl);
     unselectAllZooms.addEventListener("click", onDomUnselectALl);
-    openDownload.addEventListener("click", onOpenDownloadDialog);
-    download.addEventListener("click", onDownload);
-    cancelDownload.addEventListener("click", onCancelDownload);
-    cancelAlert.addEventListener("click", onCancelAlert);
+    openDownload.addEventListener("click", onDomOpenDownloadDialog);
+    download.addEventListener("click", onDomDownload);
+    cancelDownload.addEventListener("click", onDomCancelDownload);
+    cancelAlert.addEventListener("click", onDomCancelAlert);
   }
 
   function onDomChangeMapType(e) {
@@ -347,7 +347,7 @@
     downloadZoom.forEach((i) => (i.checked = false));
   }
 
-  function onOpenDownloadDialog(e) {
+  function onDomOpenDownloadDialog(e) {
     if (currentBounds) {
       downloadDialog.style.display = "flex";
     } else {
@@ -356,7 +356,7 @@
     }
   }
 
-  function onCancelDownload(e) {
+  function onDomCancelDownload(e) {
     downloadDialog.style.display = "none";
     for (let i in progressTimers) clearInterval(progressTimers[i]);
     progressTimers = {};
@@ -366,31 +366,35 @@
     onDomUnselectALl();
   }
 
-  function onDownload() {
+  function onDomDownload() {
     if (currentBounds) {
       let ne = currentBounds.getNorthEast(); //可视区域右上角
       let sw = currentBounds.getSouthWest(); //可视区域左下角
-
-      let data = {
-        nw: [sw.lng, ne.lat],
-        ne: [ne.lng, ne.lat],
-        se: [ne.lng, sw.lat],
-        sw: [sw.lng, sw.lat],
-        projection: projectionCode,
-      };
 
       progresses = {};
       downloadType.forEach((type) => {
         if (type.checked) {
           downloadZoom.forEach((zoom) => {
             if (zoom.checked) {
-              data.zoom = zoom.value * 1;
-              data.type = type.value;
-              data.uuid = generateUUID(16, 16);
+              let data = {
+                uuid: generateUUID(16, 16),
+                type: type.value,
+                zoom: zoom.value * 1,
+                projection: projectionCode,
+                nw: [sw.lng, ne.lat],
+                ne: [ne.lng, ne.lat],
+                se: [ne.lng, sw.lat],
+                sw: [sw.lng, sw.lat],
+              };
+
               let label = data.type == "img" ? "影像地图" : "矢量地图";
-              label = `${label}第${zoom.value}级 （0%）`;
-              progresses[data.uuid] = createProgressElement(label);
-              progressContainer.appendChild(progresses[data.uuid]);
+              label = `${zoom.value}级${label} （0%）`;
+              progresses[data.uuid] = createProgress();
+              progresses[data.uuid].label.innerHTML = label;
+              progresses[data.uuid].button.addEventListener("click", (e) => {
+                onDomToggleDownload(data.uuid);
+              });
+              progressContainer.appendChild(progresses[data.uuid].progress);
 
               doDownloadTiles(data);
               doTrackProgress(data.uuid);
@@ -401,8 +405,18 @@
     } else throw new Error("下载错误，未选择下载区域");
   }
 
-  function onCancelAlert(e) {
+  function onDomCancelAlert(e) {
     alertDialog.style.display = "none";
+  }
+
+  function onDomToggleDownload(uuid) {
+    let progress = progresses[uuid];
+    if (progress.state == "ing") {
+      doCancelDownloadTiles(uuid);
+    } else {
+      progress.button.classList.replace("fa-rotate", "fa-ban");
+      progress.state = "ing";
+    }
   }
 
   window.onload = () => {
@@ -429,6 +443,27 @@
     xhr.send(JSON.stringify(data));
   }
 
+  function doCancelDownloadTiles(uuid) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("post", `/tianditu/download/cancel`, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        let result = JSON.parse(xhr.responseText);
+        // TODO 这里只是清除了进度查询而没有删除后端下载缓存，可以供以后断点续传准备
+        clearInterval(progressTimers[uuid]);
+        progressTimers[uuid] = undefined;
+        progresses[uuid].button.classList.replace("fa-ban", "fa-rotate");
+        progresses[uuid].state = "un";
+      }
+    };
+    xhr.send(
+      JSON.stringify({
+        uuid: uuid,
+      })
+    );
+  }
+
   function doTrackProgress(uuid) {
     let progressTimer = setInterval(() => {
       let xhr = new XMLHttpRequest();
@@ -437,14 +472,19 @@
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
           let result = JSON.parse(xhr.responseText);
-          let { uuid, current, total, zoom, type } = result.data;
-          let percent = ((current / total) * 100).toFixed(2);
-          let [valueElement, barElement] = progresses[uuid].children;
-          barElement.style.width = `${percent}%`;
+          let { uuid, current, total, zoom, type, state } = result.data;
+          let percent = ((current.total / total) * 100).toFixed(2);
           let label = type == "img" ? "影像地图" : "矢量地图";
-          label = `${label}${zoom}级 （${percent}%）`;
-          valueElement.innerHTML = label;
-          if (current == total) doDeleteDownloadTaskCache(uuid);
+          label = `${zoom}级${label} （${percent}%）`;
+
+          let progress = progresses[uuid];
+          progress.bar.style.width = `${percent}%`;
+          progress.label.innerHTML = label;
+
+          if (state == "ed") {
+            doDeleteDownloadTaskCache(uuid);
+            progress.button.remove();
+          }
         }
       };
       xhr.send();
@@ -487,24 +527,38 @@
     xhr.send(JSON.stringify(data));
   }
 
-  function createProgressElement(label) {
+  function createProgress() {
     // dom 模板
-    // <div class="progress-bar">
-    //   <div id="progressValue" class="value">
-    //     18级别 (10%)
+    // <div class="progress">
+    //   <div class="progress-bar">
+    //     <div class="label">18级别 (10%)</div>
+    //     <div class="bar"></div>
     //   </div>
-    //   <div id="progressBar" class="bar"></div>
+    //   <button class="nes-btn is-error fa-solid fa-ban icon"></button>
     // </div>
     let progress = document.createElement("div");
-    let progressValue = document.createElement("div");
+    progress.className = "progress";
     let progressBar = document.createElement("div");
-    progress.className = "progress-bar";
-    progressValue.className = "value";
-    progressBar.className = "bar";
-    progressValue.innerHTML = label;
-    progress.appendChild(progressValue);
+    progressBar.className = "progress-bar";
+    let label = document.createElement("div");
+    label.className = "label";
+    let bar = document.createElement("div");
+    bar.className = "bar";
+    let button = document.createElement("button");
+    button.className = "nes-btn is-error fa-solid fa-ban icon";
+
+    progressBar.appendChild(label);
+    progressBar.appendChild(bar);
     progress.appendChild(progressBar);
-    return progress;
+    progress.appendChild(button);
+
+    return {
+      state: "ing",
+      progress: progress,
+      label: label,
+      bar: bar,
+      button: button,
+    };
   }
 
   function removeDownloadline() {

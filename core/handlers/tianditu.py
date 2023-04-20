@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+import logging
 from typing import Any, Dict, List
 from core.constants import EPSG3857, EPSG4326
 from core.utils import map
@@ -8,6 +9,10 @@ from core.tianditu import packer
 
 # 全局下载任务记录缓存，用于记录某个下载进度与情况
 download_task_cache = {}
+# 下载状态常量
+DOWNLOAD_STATE_DOWNLOADING = "ing"
+DOWNLOAD_STATE_COMPLETE = "ed"
+DOWNLOAD_STATE_CANCEL = "un"
 
 
 def rectangle_of_EPSG4326(nw: List[float], ne: List[float], se: List[float], sw: List[float], zoom: int) -> Dict[str, Any]:
@@ -139,12 +144,23 @@ def download_tiles_of_EPSG4326(uuid: str, nw: List[float], ne: List[float], se: 
     download_task_cache[uuid] = {}
     # 记录当前下载唯一标识
     download_task_cache[uuid]["uuid"] = uuid
+    # 记录当前下载状态
+    download_task_cache[uuid]["state"] = DOWNLOAD_STATE_DOWNLOADING
     # 记录当前下载类型
     download_task_cache[uuid]["type"] = map_type
     # 记录当前下载层级
     download_task_cache[uuid]["zoom"] = zoom
-    # 记录当前已经下载多少
-    download_task_cache[uuid]["current"] = 0
+    # 记录瓦片位置信息
+    download_task_cache[uuid]["tile"] = {
+        "nw": tile_nw,
+        "se": tile_se,
+    }
+    # 记录当前下载信息
+    download_task_cache[uuid]["current"] = {
+        "total": 0,
+        "row": 0,
+        "col": 0,
+    }
     # 记录需要下载共计多少
     download_task_cache[uuid]["total"] = total
     # 记录下载失败的详情列表
@@ -152,8 +168,17 @@ def download_tiles_of_EPSG4326(uuid: str, nw: List[float], ne: List[float], se: 
 
     for row in range(start_row, end_row + 1):
         for col in range(start_col, end_col + 1):
+            download_task_cache[uuid]["current"]["row"] = row
+            download_task_cache[uuid]["current"]["col"] = col
+            # 如果取消了下载，则停止循环下载
+            if download_task_cache[uuid]["state"] == DOWNLOAD_STATE_CANCEL:
+                result = False
+                type_str = "影像地图" if map_type == "img" else "矢量地图"
+                logging.info(f"\033[1;31m取消{zoom}级{type_str}的EPSG4326下载，当前进度{row}行，{col}列\033[0m")
+                break
+
             success = packer.download_tile(zoom, row, col, map_type, EPSG4326)
-            download_task_cache[uuid]["current"] += 1
+            download_task_cache[uuid]["current"]["total"] += 1
             if not success:
                 result = False
                 download_task_cache[uuid]["failed"].append({
@@ -161,17 +186,23 @@ def download_tiles_of_EPSG4326(uuid: str, nw: List[float], ne: List[float], se: 
                     "row": row,
                     "col": col,
                 })
+        else:  # 仅在内循环不中断时执行
+            continue
+        break
 
-    # 计算坐标区域的瓦片四个原点坐标
-    coordinate_nw = map.tianditu_tile_position_to_EPSG4326(*tile_nw)
-    # coordinate_ne = map.tianditu_tile_position_to_EPSG4326(tile_ne[0], tile_ne[1] + 1, tile_ne[2])
-    coordinate_se = map.tianditu_tile_position_to_EPSG4326(tile_se[0] + 1, tile_se[1] + 1, tile_se[2])
-    # coordinate_sw = map.tianditu_tile_position_to_EPSG4326(tile_sw[0] + 1, tile_sw[1], tile_sw[2])
+    if download_task_cache[uuid]["state"] != DOWNLOAD_STATE_CANCEL:
+        download_task_cache[uuid]["state"] = DOWNLOAD_STATE_COMPLETE
 
-    # 合成瓦片大图
-    packer.bundle_tiles(zoom, map_type, EPSG4326)
-    # 转换瓦片格式
-    packer.translate_bundle(zoom, coordinate_nw, coordinate_se, map_type, EPSG4326)
+        # 计算坐标区域的瓦片四个原点坐标
+        coordinate_nw = map.tianditu_tile_position_to_EPSG4326(*tile_nw)
+        # coordinate_ne = map.tianditu_tile_position_to_EPSG4326(tile_ne[0], tile_ne[1] + 1, tile_ne[2])
+        coordinate_se = map.tianditu_tile_position_to_EPSG4326(tile_se[0] + 1, tile_se[1] + 1, tile_se[2])
+        # coordinate_sw = map.tianditu_tile_position_to_EPSG4326(tile_sw[0] + 1, tile_sw[1], tile_sw[2])
+
+        # 合成瓦片大图
+        packer.bundle_tiles(zoom, map_type, EPSG4326)
+        # 转换瓦片格式
+        packer.translate_bundle(zoom, coordinate_nw, coordinate_se, map_type, EPSG4326)
 
     return result
 
@@ -213,12 +244,23 @@ def download_tiles_of_EPSG3857(uuid: str, nw: List[float], ne: List[float], se: 
     download_task_cache[uuid] = {}
     # 记录当前下载唯一标识
     download_task_cache[uuid]["uuid"] = uuid
+    # 记录当前下载状态
+    download_task_cache[uuid]["state"] = DOWNLOAD_STATE_DOWNLOADING
     # 记录当前下载类型
     download_task_cache[uuid]["type"] = map_type
     # 记录当前下载层级
     download_task_cache[uuid]["zoom"] = zoom
-    # 记录当前已经下载多少
-    download_task_cache[uuid]["current"] = 0
+    # 记录瓦片位置信息
+    download_task_cache[uuid]["tile"] = {
+        "nw": tile_nw,
+        "se": tile_se,
+    }
+    # 记录当前下载信息
+    download_task_cache[uuid]["current"] = {
+        "total": 0,
+        "row": 0,
+        "col": 0,
+    }
     # 记录需要下载共计多少
     download_task_cache[uuid]["total"] = total
     # 记录下载失败的详情列表
@@ -226,8 +268,17 @@ def download_tiles_of_EPSG3857(uuid: str, nw: List[float], ne: List[float], se: 
 
     for row in range(start_row, end_row + 1):
         for col in range(start_col, end_col + 1):
+            download_task_cache[uuid]["current"]["row"] = row
+            download_task_cache[uuid]["current"]["col"] = col
+            # 如果取消了下载，则停止循环下载
+            if download_task_cache[uuid]["state"] == DOWNLOAD_STATE_CANCEL:
+                result = False
+                type_str = "影像地图" if map_type == "img" else "矢量地图"
+                logging.info(f"\033[1;31m取消{zoom}级{type_str}的EPSG3857下载，当前进度{row}行，{col}列\033[0m")
+                break
+
             success = packer.download_tile(zoom, row, col, map_type, EPSG3857)
-            download_task_cache[uuid]["current"] += 1
+            download_task_cache[uuid]["current"]["total"] += 1
             if not success:
                 result = False
                 download_task_cache[uuid]["failed"].append({
@@ -235,25 +286,40 @@ def download_tiles_of_EPSG3857(uuid: str, nw: List[float], ne: List[float], se: 
                     "row": row,
                     "col": col,
                 })
+        else:  # 仅在内循环不中断时执行
+            continue
+        break
 
-    # 计算瓦片原点坐标
-    origin3857_nw = map.tianditu_tile_position_to_EPSG3857(*tile_nw)
-    # origin3857_ne = map.tianditu_tile_position_to_EPSG3857(tile_ne[0], tile_ne[1] + 1, tile_ne[2])
-    origin3857_se = map.tianditu_tile_position_to_EPSG3857(tile_se[0] + 1, tile_se[1] + 1, tile_se[2])
-    # origin3857_sw = map.tianditu_tile_position_to_EPSG3857(tile_sw[0] + 1, tile_sw[1], tile_sw[2])
+    if download_task_cache[uuid]["state"] != DOWNLOAD_STATE_CANCEL:
+        download_task_cache[uuid]["state"] = DOWNLOAD_STATE_COMPLETE
 
-    # 米坐标（EPSG3857）转换经纬度坐标
-    origin4326_nw = map.EPSG3857_to_EPSG4326(*origin3857_nw)
-    # origin4326_ne = map.EPSG3857_to_EPSG4326(*origin3857_ne)
-    origin4326_se = map.EPSG3857_to_EPSG4326(*origin3857_se)
-    # origin4326_sw = map.EPSG3857_to_EPSG4326(*origin3857_sw)
+        # 计算瓦片原点坐标
+        origin3857_nw = map.tianditu_tile_position_to_EPSG3857(*tile_nw)
+        # origin3857_ne = map.tianditu_tile_position_to_EPSG3857(tile_ne[0], tile_ne[1] + 1, tile_ne[2])
+        origin3857_se = map.tianditu_tile_position_to_EPSG3857(tile_se[0] + 1, tile_se[1] + 1, tile_se[2])
+        # origin3857_sw = map.tianditu_tile_position_to_EPSG3857(tile_sw[0] + 1, tile_sw[1], tile_sw[2])
 
-    # 合成瓦片大图
-    packer.bundle_tiles(zoom, map_type, EPSG3857)
-    # 转换瓦片格式
-    packer.translate_bundle(zoom, origin4326_nw, origin4326_se, map_type, EPSG3857)
+        # 米坐标（EPSG3857）转换经纬度坐标
+        origin4326_nw = map.EPSG3857_to_EPSG4326(*origin3857_nw)
+        # origin4326_ne = map.EPSG3857_to_EPSG4326(*origin3857_ne)
+        origin4326_se = map.EPSG3857_to_EPSG4326(*origin3857_se)
+        # origin4326_sw = map.EPSG3857_to_EPSG4326(*origin3857_sw)
+
+        # 合成瓦片大图
+        packer.bundle_tiles(zoom, map_type, EPSG3857)
+        # 转换瓦片格式
+        packer.translate_bundle(zoom, origin4326_nw, origin4326_se, map_type, EPSG3857)
 
     return result
+
+
+def cancel_progress(uuid: str) -> None:
+    """设置下载缓存中指定唯一标识的状态，即取消下载
+
+    Args:
+        uuid (str): 唯一标识
+    """
+    download_task_cache[uuid]["state"] = DOWNLOAD_STATE_CANCEL
 
 
 def get_progress(uuid: str) -> Dict[str, Any]:

@@ -78,6 +78,19 @@ def tiles_download() -> Tuple[str, int]:
     return str(Result.success(result)), 200
 
 
+@app.route("/tianditu/download/cancel", methods=["POST"])
+def cancel_tiles_download() -> Tuple[str, int]:
+    """根据POST传参下载指定范围与层级的瓦片图。
+
+    Returns:
+        Tuple[str, int]: Flask 返回值
+    """
+    data = request.get_json()
+    uuid = str(data["uuid"])
+    tianditu_handler.cancel_progress(uuid)
+    return str(Result.success(True)), 200
+
+
 @app.route("/tianditu/download/progress/<uuid>", methods=["GET", "DELETE"])
 def download_progress(uuid: str) -> Tuple[str, int]:
     """根据请求方式，删除或者获取指定uuid的下载进度缓存。
