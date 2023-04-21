@@ -367,9 +367,6 @@
     downloadType.forEach((i) => (i.checked = false));
     onDomUnselectALl();
     downloadDialog.style.display = "none";
-    setTimeout(() => {
-      console.log("tianditu.js >> progressTimers: %o", progressTimers);
-    },5000);
   }
 
   function onDomDownload() {
@@ -424,20 +421,22 @@
     } else throw new Error("下载错误，未选择下载区域");
   }
 
-  function onDomCancelAlert(e) {
-    alertDialog.style.display = "none";
-  }
-
   function onDomToggleDownload(uuid) {
     let progress = progresses[uuid];
     if (progress.state == "ing") {
-      doCancelDownloadTiles(uuid);
       progress.button.classList.replace("fa-ban", "fa-rotate");
       progress.state = "un";
+      doCancelDownloadTiles(uuid);
     } else {
       progress.button.classList.replace("fa-rotate", "fa-ban");
       progress.state = "ing";
+      doResumeDownloadTiles(uuid);
+      doTrackProgress(uuid);
     }
+  }
+
+  function onDomCancelAlert(e) {
+    alertDialog.style.display = "none";
   }
 
   window.onload = () => {
@@ -494,7 +493,7 @@
 
   function doCancelDownloadTiles(uuid) {
     let xhr = new XMLHttpRequest();
-    xhr.open("post", `/tianditu/download/cancel`, true);
+    xhr.open("get", `/tianditu/download/cancel/${uuid}`, true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
@@ -504,11 +503,19 @@
         delete progressTimers[uuid];
       }
     };
-    xhr.send(
-      JSON.stringify({
-        uuid: uuid,
-      })
-    );
+    xhr.send();
+  }
+
+  function doResumeDownloadTiles(uuid) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("get", `/tianditu/download/resume/${uuid}`, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        let result = JSON.parse(xhr.responseText);
+      }
+    };
+    xhr.send();
   }
 
   function doDeleteDownloadTaskCache(uuid) {

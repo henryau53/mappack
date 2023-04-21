@@ -84,15 +84,30 @@ def tiles_download() -> Tuple[str, int]:
     return str(Result.success(result)), 200
 
 
-@app.route("/tianditu/download/cancel", methods=["POST"])
-def cancel_tiles_download() -> Tuple[str, int]:
-    """根据POST传参下载指定范围与层级的瓦片图。
+@app.route("/tianditu/download/resume/<uuid>", methods=["GET"])
+def resume_tiles_download(uuid: str) -> Tuple[str, int]:
+    """根据唯一标识继续下载瓦片图。
+
+    Args:
+        uuid (str): 下载任务唯一标识码
 
     Returns:
         Tuple[str, int]: Flask 返回值
     """
-    data = request.get_json()
-    uuid = str(data["uuid"])
+    result = tianditu_handler.resume_progress(uuid)
+    return str(Result.success(result)), 200
+
+
+@app.route("/tianditu/download/cancel/<uuid>", methods=["GET"])
+def cancel_tiles_download(uuid: str) -> Tuple[str, int]:
+    """根据唯一标识取消下载瓦片图。
+
+    Args:
+        uuid (str): 下载任务唯一标识码
+
+    Returns:
+        Tuple[str, int]: Flask 返回值
+    """
     tianditu_handler.cancel_progress(uuid)
     return str(Result.success(True)), 200
 
