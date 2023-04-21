@@ -30,8 +30,11 @@ pip install -r ./requirements.txt
 # 启动Flask
 python ./main.py
 
-# 浏览器浏览
-http://localhost:5000/
+# 经纬度投影（EPSG4326）地址
+http://localhost:5000/tianditu/4326
+
+# 墨卡托投影（EPSG3857）地址
+http://localhost:5000/tianditu/3857
 ```
 
 
@@ -41,6 +44,10 @@ http://localhost:5000/
 ![截图1](./docs/screenshot_1.png)
 
 ![截图1](./docs/screenshot_2.png)
+
+![截图1](./docs/screenshot_3.png)
+
+![截图1](./docs/screenshot_4.png)
 
 
 
