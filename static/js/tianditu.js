@@ -273,7 +273,7 @@
     unselectAllZooms.addEventListener("click", onDomUnselectALl);
     openDownload.addEventListener("click", onDomOpenDownloadDialog);
     download.addEventListener("click", onDomDownload);
-    cancelDownload.addEventListener("click", onDomCancelDownload);
+    cancelDownload.addEventListener("click", onDomCloseDownload);
     cancelAlert.addEventListener("click", onDomCancelAlert);
   }
 
@@ -356,16 +356,20 @@
     }
   }
 
-  function onDomCancelDownload(e) {
-    for (let i in progressTimers) clearInterval(progressTimers[i]);
-    progressTimers = {};
+  function onDomCloseDownload(e) {
+    console.log("tianditu.js >> progresses: %o", progresses);
     for (let i in progresses)
       progresses[i].state == "ing" && doCancelDownloadTiles(i);
-    progresses = {};
+    // progresses = {};
+    // for (let i in progressTimers) clearInterval(progressTimers[i]);
+    // progressTimers = {};
     progressContainer.innerHTML = "";
     downloadType.forEach((i) => (i.checked = false));
     onDomUnselectALl();
     downloadDialog.style.display = "none";
+    setTimeout(() => {
+      console.log("tianditu.js >> progressTimers: %o", progressTimers);
+    },5000);
   }
 
   function onDomDownload() {
@@ -374,6 +378,7 @@
       let ne = currentBounds.getNorthEast(); //可视区域右上角
       let sw = currentBounds.getSouthWest(); //可视区域左下角
       progresses = {};
+      progressTimers = {};
       downloadType.forEach((type) => {
         if (type.checked) {
           isCheckType = true;
@@ -427,6 +432,8 @@
     let progress = progresses[uuid];
     if (progress.state == "ing") {
       doCancelDownloadTiles(uuid);
+      progress.button.classList.replace("fa-ban", "fa-rotate");
+      progress.state = "un";
     } else {
       progress.button.classList.replace("fa-rotate", "fa-ban");
       progress.state = "ing";
@@ -457,27 +464,6 @@
     xhr.send(JSON.stringify(data));
   }
 
-  function doCancelDownloadTiles(uuid) {
-    let xhr = new XMLHttpRequest();
-    xhr.open("post", `/tianditu/download/cancel`, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        let result = JSON.parse(xhr.responseText);
-        // TODO 这里只是清除了进度查询而没有删除后端下载缓存，可以供以后断点续传准备
-        clearInterval(progressTimers[uuid]);
-        progressTimers[uuid] = undefined;
-        progresses[uuid].button.classList.replace("fa-ban", "fa-rotate");
-        progresses[uuid].state = "un";
-      }
-    };
-    xhr.send(
-      JSON.stringify({
-        uuid: uuid,
-      })
-    );
-  }
-
   function doTrackProgress(uuid) {
     let progressTimer = setInterval(() => {
       let xhr = new XMLHttpRequest();
@@ -490,8 +476,8 @@
           let percent = ((current.total / total) * 100).toFixed(2);
           let label = type == "img" ? "影像地图" : "矢量地图";
           label = `${zoom}级${label} （${percent}%）`;
-
           let progress = progresses[uuid];
+          progress.state = state;
           progress.bar.style.width = `${percent}%`;
           progress.label.innerHTML = label;
 
@@ -506,13 +492,33 @@
     progressTimers[uuid] = progressTimer;
   }
 
+  function doCancelDownloadTiles(uuid) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("post", `/tianditu/download/cancel`, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        let result = JSON.parse(xhr.responseText);
+        // TODO 这里只是清除了进度查询而没有删除后端下载缓存，可以供以后断点续传准备
+        clearInterval(progressTimers[uuid]);
+        delete progressTimers[uuid];
+      }
+    };
+    xhr.send(
+      JSON.stringify({
+        uuid: uuid,
+      })
+    );
+  }
+
   function doDeleteDownloadTaskCache(uuid) {
     let xhr = new XMLHttpRequest();
     xhr.open("delete", `/tianditu/download/progress/${uuid}`, true);
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
+        let result = JSON.parse(xhr.responseText);
         clearInterval(progressTimers[uuid]);
-        progressTimers[uuid] = undefined;
+        delete progressTimers[uuid];
       }
     };
     xhr.send();

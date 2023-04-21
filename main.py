@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+import os
 from typing import Tuple
 from flask import Flask
-from flask import render_template
+from flask import render_template, send_from_directory
 from flask import request
 from core.beans import Result
 from core.constants import EPSG4326, EPSG3857, EPSG900913
@@ -11,6 +12,11 @@ import flask_configs
 
 app = Flask(__name__)
 app.config.from_object(flask_configs)
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static/image'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @app.route("/")
