@@ -357,25 +357,29 @@
   }
 
   function onDomCancelDownload(e) {
-    downloadDialog.style.display = "none";
     for (let i in progressTimers) clearInterval(progressTimers[i]);
     progressTimers = {};
+    for (let i in progresses)
+      progresses[i].state == "ing" && doCancelDownloadTiles(i);
     progresses = {};
     progressContainer.innerHTML = "";
     downloadType.forEach((i) => (i.checked = false));
     onDomUnselectALl();
+    downloadDialog.style.display = "none";
   }
 
   function onDomDownload() {
     if (currentBounds) {
+      let isCheckZoom = (isCheckType = false);
       let ne = currentBounds.getNorthEast(); //可视区域右上角
       let sw = currentBounds.getSouthWest(); //可视区域左下角
-
       progresses = {};
       downloadType.forEach((type) => {
         if (type.checked) {
+          isCheckType = true;
           downloadZoom.forEach((zoom) => {
             if (zoom.checked) {
+              isCheckZoom = true;
               let data = {
                 uuid: generateUUID(16, 16),
                 type: type.value,
@@ -402,6 +406,16 @@
           });
         }
       });
+      if (!isCheckType) {
+        alertDialog.style.display = "flex";
+        alertMessage.innerHTML = "对不起，请选择需要下载的地图类型";
+        return;
+      }
+      if (!isCheckZoom) {
+        alertDialog.style.display = "flex";
+        alertMessage.innerHTML = "对不起，请选择需要下载的地图层级";
+        return;
+      }
     } else throw new Error("下载错误，未选择下载区域");
   }
 
