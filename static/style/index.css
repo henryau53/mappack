@@ -1,0 +1,45 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+.main .message-list {
+  padding: 16px 64px;
+}
+.main .message-list .message {
+  display: flex;
+  flex-direction: row;
+  margin-top: 8px;
+}
+.main .message-list .message .point {
+  font-weight: bold;
+  font-style: italic;
+  margin: 0px 5px;
+}
+.main .message-list .-left {
+  justify-content: start;
+}
+.main .message-list .-left .nes-balloon {
+  margin-left: 48px;
+}
+.main .message-list .-left .nes-badge {
+  margin: 0px 16px;
+}
+.main .message-list .-right {
+  justify-content: end;
+}
+.main .message-list .-right .nes-balloon {
+  margin-right: 48px;
+}
+.main .message-list .-right .nes-badge {
+  margin: 0px 16px;
+}
+
+/*# sourceMappingURL=index.css.map */

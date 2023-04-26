@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='image/favicon.ico') }}"
+      type="image/x-icon"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style/nes.css/css/nes.min.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style/index.css') }}"
+    />
+    <title>Hello, Mappack !!!</title>
+  </head>
+  <body>
+    <div class="main">
+      <section class="message-list">
+        <section class="message -left">
+          <i class="nes-bcrikko"></i>
+          <div class="nes-balloon from-left">
+            <p>你好，Mappack！</p>
+          </div>
+        </section>
+        <section class="message -right">
+          <div class="nes-balloon from-right">
+            <p>你好，有什么可以帮助你的？</p>
+          </div>
+          <i class="nes-bcrikko"></i>
+        </section>
+        <section class="message -left">
+          <i class="nes-bcrikko"></i>
+          <div class="nes-balloon from-left">
+            <p>你都能干些什么？</p>
+          </div>
+        </section>
+        <section class="message -right">
+          <div class="nes-balloon from-right">
+            <p>
+              我现在可以将天地图的瓦片打包下载下来，你可以使用下载下来的目录结构直接发布离线地图。
+            </p>
+          </div>
+          <i class="nes-bcrikko"></i>
+        </section>
+        <section class="message -right">
+          <div class="nes-balloon from-right">
+            <p>也能将这些瓦片图合成一张大大的地图图片。</p>
+          </div>
+          <i class="nes-bcrikko"></i>
+        </section>
+        <section class="message -right">
+          <div class="nes-balloon from-right">
+            <p>
+              同时将将这张大大的地图图片转换成<font class="point"
+                >Geoserver</font
+              >可以使用的<font class="point">GeoTiff</font>格式。
+            </p>
+          </div>
+          <i class="nes-bcrikko"></i>
+        </section>
+        <section class="message -right">
+          <div class="nes-balloon from-right">
+            <p>可以点击下面两个连接尝试下。</p>
+          </div>
+          <i class="nes-bcrikko"></i>
+        </section>
+        <section class="message -right">
+          <div class="nes-balloon from-right">
+            <a href="/tianditu/4326" class="nes-badge">
+              <span class="is-primary">经纬度</span>
+            </a>
+            <a href="/tianditu/3857" class="nes-badge">
+              <span class="is-success">墨卡托</span>
+            </a>
+          </div>
+          <i class="nes-bcrikko"></i>
+        </section>
+      </section>
+    </div>
+  </body>
+</html>

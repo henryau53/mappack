@@ -26,7 +26,7 @@ def hello() -> str:
     Returns:
         str: 模板渲染结果
     """
-    return "<h2>Hello, Mappack !!!</h2>"
+    return render_template("index.html")
 
 
 @app.route("/tianditu/<projection>", methods=["GET"])

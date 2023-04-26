@@ -357,7 +357,6 @@
   }
 
   function onDomCloseDownload(e) {
-    console.log("tianditu.js >> progresses: %o", progresses);
     for (let i in progresses)
       progresses[i].state == "ing" && doCancelDownloadTiles(i);
     // progresses = {};
@@ -397,8 +396,9 @@
               label = `${zoom.value}级${label} （0%）`;
               progresses[data.uuid] = createProgress();
               progresses[data.uuid].label.innerHTML = label;
+              let wrapper = throttle(onDomToggleDownload, 500);
               progresses[data.uuid].button.addEventListener("click", (e) => {
-                onDomToggleDownload(data.uuid);
+                wrapper(data.uuid);
               });
               progressContainer.appendChild(progresses[data.uuid].progress);
 

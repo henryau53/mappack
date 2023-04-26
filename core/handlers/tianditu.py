@@ -283,7 +283,6 @@ def download_tiles_of_EPSG3857(uuid: str, nw: List[float], ne: List[float], se: 
 
             success = packer.download_tile(zoom, row, col, map_type, EPSG3857)
             download_progress_cache[uuid]["current"]["total"] += 1
-            print(f"{row},{col}", {download_progress_cache[uuid]["current"]["total"]})
             if not success:
                 result = False
                 download_progress_cache[uuid]["failed"].append({
@@ -330,6 +329,12 @@ def resume_progress(uuid: str) -> bool:
     if uuid not in download_progress_cache:
         return False
 
+    # 防抖
+    if download_progress_cache[uuid]["state"] == DOWNLOAD_STATE_DOWNLOADING:
+        return False
+
+    download_progress_cache[uuid]["state"] = DOWNLOAD_STATE_DOWNLOADING
+
     tile_nw = download_progress_cache[uuid]["tile"]["nw"]
     tile_se = download_progress_cache[uuid]["tile"]["se"]
 
@@ -338,7 +343,8 @@ def resume_progress(uuid: str) -> bool:
     resume_row = download_progress_cache[uuid]["current"]["row"]
     resume_col = download_progress_cache[uuid]["current"]["col"]
 
-    if end_row == resume_row and end_col == resume_col:
+    if download_progress_cache[uuid]["current"]["total"] == download_progress_cache[uuid][
+            "total"] and end_row == resume_row and end_col == resume_col:
         download_progress_cache[uuid]["state"] = DOWNLOAD_STATE_COMPLETE
         return True
 
@@ -346,8 +352,7 @@ def resume_progress(uuid: str) -> bool:
     zoom = download_progress_cache[uuid]["zoom"]
     epsg_code = download_progress_cache[uuid]["projection"]
     map_type = download_progress_cache[uuid]["type"]
-    print(f"resume:{resume_row},{resume_col}")
-    download_progress_cache[uuid]["state"] = DOWNLOAD_STATE_DOWNLOADING
+
     col = resume_col
     for row in range(resume_row, end_row + 1):
         while col < end_col + 1:
@@ -363,7 +368,6 @@ def resume_progress(uuid: str) -> bool:
 
             success = packer.download_tile(zoom, row, col, map_type, epsg_code)
             download_progress_cache[uuid]["current"]["total"] += 1
-            print(f"{row},{col}", {download_progress_cache[uuid]["current"]["total"]})
             if not success:
                 result = False
                 download_progress_cache[uuid]["failed"].append({
